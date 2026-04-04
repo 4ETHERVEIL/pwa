@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Direct APK Builder - AppMaker API</title>
+    <title>⚡ Fast APK Builder - AppMaker API</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,6 +14,7 @@
             --text: #f9fafb; --text-muted: #9ca3af; --border: #1f2937; --error: #ef4444;
             --gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
             --shadow: 0 10px 40px rgba(0,0,0,0.3); --shadow-glow: 0 0 30px rgba(99,102,241,0.2);
+            --speed: 0.2s;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -35,7 +36,7 @@
             padding: 6px 14px; border-radius: 50px; font-size: 0.75rem;
             font-weight: 600; margin-bottom: 15px; border: 1px solid rgba(16,185,129,0.3);
         }
-        .badge i { animation: pulse 2s infinite; }
+        .badge i { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.4 } }
         
         h1 {
@@ -44,28 +45,38 @@
             -webkit-text-fill-color: transparent; background-clip: text;
         }
         header p { color: var(--text-muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto; }
+        .speed-tag {
+            display: inline-block; background: var(--accent); color: #451a03;
+            padding: 3px 10px; border-radius: 6px; font-size: 0.7rem;            font-weight: 700; margin-left: 8px; animation: bounce 2s infinite;
+        }
+        @keyframes bounce { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-3px) } }
         
         /* Theme Toggle */
         .theme-toggle {
-            position: fixed; top: 20px; right: 20px; z-index: 100;            width: 44px; height: 44px; border-radius: 12px;
+            position: fixed; top: 20px; right: 20px; z-index: 100;
+            width: 44px; height: 44px; border-radius: 12px;
             background: var(--card); border: 1px solid var(--border);
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.3s; color: var(--text-muted);
+            cursor: pointer; transition: var(--speed); color: var(--text-muted);
         }
-        .theme-toggle:hover { background: var(--card-hover); color: var(--primary); border-color: var(--primary); }
+        .theme-toggle:hover { background: var(--card-hover); color: var(--primary); border-color: var(--primary); transform: rotate(15deg); }
         
         /* Cards */
         .card {
             background: var(--card); border: 1px solid var(--border);
             border-radius: 16px; padding: 24px; margin-bottom: 20px;
-            transition: all 0.3s; box-shadow: var(--shadow);
+            transition: var(--speed); box-shadow: var(--shadow);
         }
-        .card:hover { border-color: rgba(99,102,241,0.4); box-shadow: var(--shadow-glow); }
+        .card:hover { border-color: rgba(99,102,241,0.4); box-shadow: var(--shadow-glow); transform: translateY(-2px); }
         .card h3 {
             color: var(--primary); margin-bottom: 18px; display: flex;
             align-items: center; gap: 10px; font-size: 1.1rem; font-weight: 700;
         }
-        .card h3 i { width: 28px; height: 28px; border-radius: 8px; background: rgba(99,102,241,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .card h3 i { 
+            width: 28px; height: 28px; border-radius: 8px; 
+            background: rgba(99,102,241,0.15); display: flex; 
+            align-items: center; justify-content: center; font-size: 0.9rem; 
+        }
         
         /* Form */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -75,7 +86,7 @@
         input, select {
             width: 100%; padding: 11px 14px; background: #0f172a;
             border: 1px solid var(--border); color: var(--text);
-            border-radius: 10px; font-size: 0.9rem; transition: all 0.2s;
+            border-radius: 10px; font-size: 0.9rem; transition: var(--speed);
         }
         input:focus, select:focus {
             outline: none; border-color: var(--primary);
@@ -85,8 +96,7 @@
         
         /* Color Picker */
         .color-group { display: flex; align-items: center; gap: 10px; }
-        .color-group input[type="color"] {
-            width: 44px; height: 44px; padding: 3px; border-radius: 10px;
+        .color-group input[type="color"] {            width: 44px; height: 44px; padding: 3px; border-radius: 10px;
             cursor: pointer; border: 1px solid var(--border); background: transparent;
         }
         .color-group input[type="text"] { flex: 1; font-family: monospace; }
@@ -96,20 +106,24 @@
             display: flex; gap: 20px; align-items: center; margin-top: 10px; flex-wrap: wrap;
         }
         .preview-box {
-            text-align: center; background: #0f172a; padding: 12px;            border-radius: 12px; border: 1px solid var(--border);
+            text-align: center; background: #0f172a; padding: 12px;
+            border-radius: 12px; border: 1px solid var(--border);
+            transition: var(--speed);
         }
+        .preview-box:hover { border-color: var(--primary); }
         .preview-box img {
             width: 80px; height: 80px; border-radius: 16px;
             object-fit: contain; background: var(--card);
-            display: none; margin-bottom: 8px;
+            display: none; margin-bottom: 8px; transition: var(--speed);
         }
         .preview-box span { font-size: 0.7rem; color: var(--text-muted); }
         .preview-placeholder {
             width: 80px; height: 80px; border-radius: 16px;
             background: var(--gradient); display: flex;
             align-items: center; justify-content: center;
-            font-size: 2rem; margin-bottom: 8px;
+            font-size: 2rem; margin-bottom: 8px; animation: float 3s ease-in-out infinite;
         }
+        @keyframes float { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-5px) } }
         
         /* Toggle */
         .toggle-row {
@@ -119,60 +133,106 @@
         .toggle-row:last-child { border-bottom: none; }
         .toggle-label .title { font-size: 0.85rem; font-weight: 600; }
         .toggle-label .desc { font-size: 0.7rem; color: var(--text-muted); }
-        .toggle {
-            position: relative; width: 48px; height: 26px;
-        }
+        .toggle { position: relative; width: 48px; height: 26px; }
         .toggle input { opacity: 0; width: 0; height: 0; }
         .toggle-slider {
             position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
             background: #0f172a; border: 1px solid var(--border);
-            border-radius: 26px; transition: all 0.3s;
+            border-radius: 26px; transition: var(--speed);
         }
         .toggle-slider::before {
             content: ''; position: absolute; width: 20px; height: 20px;
             left: 2px; bottom: 2px; background: var(--text-muted);
-            border-radius: 50%; transition: all 0.3s;
+            border-radius: 50%; transition: var(--speed);
         }
-        .toggle input:checked + .toggle-slider { background: var(--primary); border-color: var(--primary); }
-        .toggle input:checked + .toggle-slider::before { transform: translateX(22px); background: white; }
+        .toggle input:checked + .toggle-slider { background: var(--primary); border-color: var(--primary); }        .toggle input:checked + .toggle-slider::before { transform: translateX(22px); background: white; }
         
         /* Buttons */
         .btn {
             width: 100%; padding: 14px 20px; border: none; border-radius: 12px;
-            font-weight: 700; cursor: pointer; transition: all 0.2s;
+            font-weight: 700; cursor: pointer; transition: var(--speed);
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            font-size: 0.95rem;
+            font-size: 0.95rem; position: relative; overflow: hidden;
         }
+        .btn::after {
+            content: ''; position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .btn:hover::after { left: 100%; }
         .btn-primary {
             background: var(--gradient); color: white;
-            box-shadow: var(--shadow-glow);        }
+            box-shadow: var(--shadow-glow);
+        }
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px); box-shadow: 0 15px 50px rgba(99,102,241,0.4);
         }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         
-        /* Progress */
+        /* FAST MODE Progress */
         .progress-container {
             display: none; margin-top: 20px; padding: 20px;
             background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2);
-            border-radius: 12px;
+            border-radius: 12px; animation: slideDown var(--speed);
         }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-10px) } to { opacity:1; transform:translateY(0) } }
+        
         .progress-bar {
-            width: 100%; height: 8px; background: #0f172a;
-            border-radius: 8px; overflow: hidden; margin-bottom: 10px;
+            width: 100%; height: 10px; background: #0f172a;
+            border-radius: 10px; overflow: hidden; margin-bottom: 12px;
+            position: relative;
         }
         .progress-fill {
-            height: 100%; background: var(--gradient); border-radius: 8px;
-            transition: width 0.4s ease; width: 0%;
+            height: 100%; background: var(--gradient); border-radius: 10px;
+            transition: width 0.3s ease; width: 0%; position: relative;
         }
+        .progress-fill::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 0% { transform: translateX(-100%) } 100% { transform: translateX(100%) } }
+        
         .progress-text {
-            font-size: 0.8rem; color: var(--text-muted); text-align: center;
+            font-size: 0.8rem; color: var(--text-muted); text-align: center;            font-weight: 500;
         }
+        .progress-text.fast { color: var(--secondary); animation: pulseText 1s infinite; }
+        @keyframes pulseText { 0%,100% { opacity:1 } 50% { opacity:0.7 } }
+        
+        .step-indicator {
+            display: flex; justify-content: space-between; margin-top: 15px;
+            font-size: 0.7rem; color: var(--text-muted);
+        }
+        .step {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            flex: 1; position: relative;
+        }
+        .step::before {
+            content: ''; position: absolute; top: 10px; left: 50%; right: 50%;
+            height: 2px; background: var(--border); transition: var(--speed);
+        }
+        .step.active::before { background: var(--primary); }
+        .step.done::before { background: var(--secondary); }
+        .step-dot {
+            width: 20px; height: 20px; border-radius: 50%;
+            background: var(--border); border: 2px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.6rem; transition: var(--speed);
+        }
+        .step.active .step-dot {
+            background: var(--primary); border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(99,102,241,0.5);
+            animation: bounce 1s infinite;
+        }
+        .step.done .step-dot {
+            background: var(--secondary); border-color: var(--secondary);
+        }
+        .step.done .step-dot::after { content: '✓'; color: white; font-size: 0.7rem; }
         
         /* Result */
         .result {
             display: none; margin-top: 20px; padding: 24px;
-            border-radius: 16px; animation: slideUp 0.4s ease;
+            border-radius: 16px; animation: slideUp 0.3s ease;
         }
         @keyframes slideUp { from { opacity:0; transform:translateY(20px) } to { opacity:1; transform:translateY(0) } }
         .result.success {
@@ -183,34 +243,56 @@
         }
         .result h3 { margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .result.success h3 { color: var(--secondary); }
-        .result.error h3 { color: var(--error); }
-        
+        .result.error h3 { color: var(--error); }        
         .key-info {
             background: #0f172a; border-radius: 10px; padding: 16px;
             margin: 16px 0; border-left: 3px solid var(--accent);
+            animation: fadeIn 0.3s ease;
         }
+        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
         .key-info h4 { font-size: 0.9rem; margin-bottom: 10px; color: var(--accent); }
         .key-info p { font-size: 0.8rem; margin: 4px 0; font-family: monospace; }
-        .key-info code { background: rgba(245,158,11,0.1); padding: 2px 6px; border-radius: 4px; }
+        .key-info code { 
+            background: rgba(245,158,11,0.1); padding: 2px 6px; 
+            border-radius: 4px; cursor: pointer; transition: var(--speed);
+        }
+        .key-info code:hover { background: rgba(245,158,11,0.2); }
         
         .download-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
-        .download-btn {            flex: 1; min-width: 150px; padding: 12px; border: none;
+        .download-btn {
+            flex: 1; min-width: 150px; padding: 12px; border: none;
             border-radius: 10px; font-weight: 600; cursor: pointer;
             display: flex; align-items: center; justify-content: center; gap: 6px;
-            transition: all 0.2s; font-size: 0.85rem;
+            transition: var(--speed); font-size: 0.85rem; position: relative;
+            overflow: hidden;
         }
+        .download-btn::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1), transparent);
+            opacity: 0; transition: var(--speed);
+        }
+        .download-btn:hover::before { opacity: 1; }
         .download-btn.apk { background: var(--secondary); color: #022c22; }
         .download-btn.aab { background: var(--primary); color: white; }
         .download-btn.key { background: var(--accent); color: #451a03; }
-        .download-btn:hover { transform: translateY(-2px); opacity: 0.95; }
+        .download-btn:hover { transform: translateY(-2px); }
+        
+        /* Speed Mode Toggle */
+        .speed-mode {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
+            padding: 10px 15px; background: rgba(245,158,11,0.1);
+            border: 1px solid rgba(245,158,11,0.3); border-radius: 10px;
+        }
+        .speed-mode input { width: auto; margin: 0; }
+        .speed-mode label { margin: 0; font-size: 0.85rem; color: var(--text); }
+        .speed-mode .desc { font-size: 0.7rem; color: var(--text-muted); display: block; }
         
         /* Footer */
         footer {
             text-align: center; padding: 30px 20px; color: var(--text-muted);
             font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 20px;
         }
-        footer a { color: var(--primary); text-decoration: none; }
-        footer a:hover { text-decoration: underline; }
+        footer a { color: var(--primary); text-decoration: none; }        footer a:hover { text-decoration: underline; }
         
         /* Responsive */
         @media (max-width: 768px) {
@@ -218,6 +300,8 @@
             h1 { font-size: 1.8rem; }
             .icon-preview { flex-direction: column; align-items: flex-start; }
             .download-btns { flex-direction: column; }
+            .step-indicator { flex-wrap: wrap; gap: 10px; }
+            .step { flex: none; width: 30%; }
         }
     </style>
 </head>
@@ -230,12 +314,21 @@
     
     <div class="container">
         <header>
-            <div class="badge"><i class="fas fa-bolt"></i> DIRECT APK GENERATOR</div>
-            <h1>🚀 Web to APK</h1>
-            <p>Masukkan URL website → Konfigurasi → Download APK langsung. Powered by AppMaker API.</p>
+            <div class="badge"><i class="fas fa-bolt"></i> ULTRA-FAST BUILD <span class="speed-tag">⚡ 60s</span></div>
+            <h1>🚀 Web to APK <span style="font-size:0.6em;vertical-align:super">FAST</span></h1>
+            <p>Build APK dalam ~60 detik! Optimized polling + smart progress animation.</p>
         </header>
 
         <form id="appForm">
+            <!-- Speed Mode -->
+            <div class="speed-mode">
+                <input type="checkbox" id="fastMode" checked>
+                <label for="fastMode">
+                    <strong>⚡ Fast Mode</strong>
+                    <span class="desc">Optimalkan polling interval untuk build lebih cepat (disarankan)</span>
+                </label>
+            </div>
+
             <!-- Basic Config -->
             <div class="card">
                 <h3><i class="fas fa-cog"></i> Konfigurasi Dasar</h3>
@@ -243,12 +336,12 @@
                     <div class="full">
                         <label>🌐 URL Website <span class="req">*</span></label>
                         <input type="url" id="url" placeholder="https://websiteanda.com" required value="https://example.com">
-                    </div>                    <div class="full">
-                        <label>📧 Email (untuk notifikasi build)</label>
+                    </div>
+                    <div class="full">
+                        <label>📧 Email (opsional)</label>
                         <input type="email" id="email" placeholder="anda@email.com">
                     </div>
-                    <div>
-                        <label>📱 Nama Aplikasi <span class="req">*</span></label>
+                    <div>                        <label>📱 Nama Aplikasi <span class="req">*</span></label>
                         <input type="text" id="appName" placeholder="My Awesome App" required value="MyApp">
                     </div>
                     <div>
@@ -260,7 +353,7 @@
 
             <!-- Appearance -->
             <div class="card">
-                <h3><i class="fas fa-palette"></i> Tampilan Aplikasi</h3>
+                <h3><i class="fas fa-palette"></i> Tampilan</h3>
                 <div class="form-grid">
                     <div>
                         <label>🎨 Toolbar Color</label>
@@ -270,7 +363,7 @@
                         </div>
                     </div>
                     <div>
-                        <label>🔤 Toolbar Title Color</label>
+                        <label>🔤 Title Color</label>
                         <div class="color-group">
                             <input type="color" id="toolbarTitleColor" value="#ffffff">
                             <input type="text" id="toolbarTitleColorText" value="#ffffff">
@@ -279,8 +372,8 @@
                     <div class="full">
                         <label class="toggle-row">
                             <div class="toggle-label">
-                                <span class="title">📊 Tampilkan Toolbar</span>
-                                <span class="desc">Tampilkan address bar di atas WebView</span>
+                                <span class="title">📊 Show Toolbar</span>
+                                <span class="desc">Tampilkan address bar di WebView</span>
                             </div>
                             <label class="toggle">
                                 <input type="checkbox" id="enableShowToolBar" checked>
@@ -292,48 +385,53 @@
             </div>
 
             <!-- Icons -->
-            <div class="card">                <h3><i class="fas fa-image"></i> Icon & Splash Screen</h3>
+            <div class="card">
+                <h3><i class="fas fa-image"></i> Icon & Splash</h3>
                 <div class="icon-preview">
                     <div class="preview-box">
-                        <div class="preview-placeholder" id="appIconPlaceholder">📱</div>
-                        <img id="appIconPreview" alt="App Icon Preview">
-                        <span>App Icon (512x512)</span>
-                        <input type="file" id="appIcon" accept="image/png,image/jpeg" style="display:none">
+                        <div class="preview-placeholder">📱</div>
+                        <img id="appIconPreview" alt="App Icon">                        <span>App Icon</span>
+                        <input type="file" id="appIcon" accept="image/*" style="display:none">
                         <button type="button" class="btn" style="margin-top:8px;padding:8px;font-size:0.8rem" onclick="document.getElementById('appIcon').click()">📤 Upload</button>
                     </div>
                     <div class="preview-box">
-                        <div class="preview-placeholder" id="splashIconPlaceholder">✨</div>
-                        <img id="splashIconPreview" alt="Splash Preview">
+                        <div class="preview-placeholder">✨</div>
+                        <img id="splashIconPreview" alt="Splash">
                         <span>Splash Screen</span>
-                        <input type="file" id="splashIcon" accept="image/png,image/jpeg" style="display:none">
+                        <input type="file" id="splashIcon" accept="image/*" style="display:none">
                         <button type="button" class="btn" style="margin-top:8px;padding:8px;font-size:0.8rem" onclick="document.getElementById('splashIcon').click()">📤 Upload</button>
                     </div>
                 </div>
-                <p style="font-size:0.75rem;color:var(--text-muted);margin-top:12px">
-                    💡 Tips: Gunakan PNG transparan 512x512px untuk hasil terbaik. Jika tidak upload, ikon default akan digunakan.
-                </p>
             </div>
 
             <!-- Build Button -->
             <button type="submit" class="btn btn-primary" id="buildBtn">
-                <i class="fas fa-rocket"></i> 🚀 BUILD APK SEKARANG
+                <i class="fas fa-rocket"></i> 🚀 BUILD APK (FAST MODE)
             </button>
         </form>
 
-        <!-- Progress -->
+        <!-- Fast Progress -->
         <div class="progress-container" id="progressContainer">
             <div class="progress-bar">
                 <div class="progress-fill" id="progress"></div>
             </div>
-            <div class="progress-text" id="progressText">Memulai proses...</div>
+            <div class="progress-text fast" id="progressText">🔄 Initializing...</div>
+            
+            <div class="step-indicator">
+                <div class="step active" id="step1"><div class="step-dot">1</div><span>Create</span></div>
+                <div class="step" id="step2"><div class="step-dot">2</div><span>Upload</span></div>
+                <div class="step" id="step3"><div class="step-dot">3</div><span>Build</span></div>
+                <div class="step" id="step4"><div class="step-dot">4</div><span>Compile</span></div>
+                <div class="step" id="step5"><div class="step-dot">5</div><span>Done!</span></div>
+            </div>
         </div>
 
         <!-- Result -->
         <div class="result" id="result"></div>
 
         <footer>
-            <p>⚡ Powered by <a href="https://appmaker.xyz" target="_blank">AppMaker.xyz API</a> | 
-            <a href="#" onclick="showInfo()">ℹ️ Info & Privacy</a></p>
+            <p>⚡ Powered by <a href="https://appmaker.xyz" target="_blank">AppMaker.xyz</a> | 
+            Fast Mode: Polling 2s • Max 20 attempts • ~60s avg build time</p>
         </footer>
     </div>
 
@@ -341,135 +439,96 @@
         // ========== API CONFIG ==========
         const appmakerAPI = {
             baseURL: 'https://standalone-app-api.appmaker.xyz/webapp',
-            defaultHeaders: {                'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36',
+            defaultHeaders: {                'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36',
                 'Accept': 'application/json, text/plain, */*',
-                'Accept-Encoding': 'gzip, deflate, br, zstd',
-                'sec-ch-ua-platform': '"Android"',
-                'sec-ch-ua': '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
-                'dnt': '1',
-                'sec-ch-ua-mobile': '?1',
-                'origin': 'https://create.appmaker.xyz',
-                'sec-fetch-site': 'same-site',
-                'sec-fetch-mode': 'cors',
-                'sec-fetch-dest': 'empty',
-                'referer': 'https://create.appmaker.xyz/',
-                'accept-language': 'id,en-US;q=0.9,en;q=0.8',
-                'priority': 'u=1, i'
+                'sec-ch-ua-platform': '"Android"', 'sec-ch-ua-mobile': '?1',
+                'origin': 'https://create.appmaker.xyz', 'referer': 'https://create.appmaker.xyz/',
+                'accept-language': 'id,en-US;q=0.9'
             },
             async createApp(url, email) {
-                const data = JSON.stringify({ url, email: email || 'user@example.com' });
-                const response = await axios.post(`${this.baseURL}/build`, data, {
-                    headers: { ...this.defaultHeaders, 'Content-Type': 'application/json' }
-                });
-                return response.data;
+                const res = await axios.post(`${this.baseURL}/build`, 
+                    JSON.stringify({ url, email: email || 'user@example.com' }),
+                    { headers: { ...this.defaultHeaders, 'Content-Type': 'application/json' }});
+                return res.data;
             },
             async uploadFile(file, appId) {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('id', appId);
-                const response = await axios.post(`${this.baseURL}/build/file-upload`, formData, {
-                    headers: this.defaultHeaders
-                });
-                return response.data;
+                const fd = new FormData();
+                fd.append('file', file); fd.append('id', appId);
+                const res = await axios.post(`${this.baseURL}/build/file-upload`, fd, { headers: this.defaultHeaders });
+                return res.data;
             },
-            async buildApp(appConfig) {
-                const data = JSON.stringify(appConfig);
-                const response = await axios.post(`${this.baseURL}/build/build`, data, {
-                    headers: { ...this.defaultHeaders, 'Content-Type': 'application/json' }
-                });
-                return response.data;
+            async buildApp(config) {
+                const res = await axios.post(`${this.baseURL}/build/build`, JSON.stringify(config),
+                    { headers: { ...this.defaultHeaders, 'Content-Type': 'application/json' }});
+                return res.data;
             },
             async checkStatus(appId) {
-                const response = await axios.get(`${this.baseURL}/build/status?appId=${appId}`, {
-                    headers: { ...this.defaultHeaders }
-                });
-                return response.data;
+                const res = await axios.get(`${this.baseURL}/build/status?appId=${appId}`, { headers: this.defaultHeaders });
+                return res.data;
             },
             async getDownloadUrl(appId) {
-                const response = await axios.get(`${this.baseURL}/complete/download?appId=${appId}`, {
-                    headers: this.defaultHeaders
-                });
-                return response.data;
-            }        };
+                const res = await axios.get(`${this.baseURL}/complete/download?appId=${appId}`, { headers: this.defaultHeaders });
+                return res.data;
+            }
+        };
 
-        // ========== UI FUNCTIONS ==========
+        // ========== UI HELPERS ==========
         function syncColor(colorInput, textInput) {
-            colorInput.addEventListener('input', () => textInput.value = colorInput.value);
-            textInput.addEventListener('input', () => {
-                if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
-                    colorInput.value = textInput.value;
-                }
-            });
+            colorInput.oninput = () => textInput.value = colorInput.value;
+            textInput.oninput = () => { if(/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) colorInput.value = textInput.value; };
         }
 
-        function previewIcon(input, previewImg, placeholder) {
-            input.addEventListener('change', function() {
-                const file = this.files[0];
-                if (file) {
+        function previewIcon(input, img, placeholder) {
+            input.onchange = function() {
+                if(this.files[0]) {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
-                        previewImg.src = e.target.result;
-                        previewImg.style.display = 'block';
-                        placeholder.style.display = 'none';
-                    }
-                    reader.readAsDataURL(file);
+                    reader.onload = e => { img.src = e.target.result; img.style.display='block'; placeholder.style.display='none'; };
+                    reader.readAsDataURL(this.files[0]);
                 }
-            });
+            };
         }
 
-        function showProgress(percent, text) {
-            document.getElementById('progressContainer').style.display = 'block';
+        function updateProgress(percent, text, step) {            document.getElementById('progressContainer').style.display = 'block';
             document.getElementById('progress').style.width = percent + '%';
             document.getElementById('progressText').textContent = text;
+            
+            // Update steps
+            for(let i=1; i<=5; i++) {
+                const el = document.getElementById('step'+i);
+                if(i < step) { el.className = 'step done'; }
+                else if(i === step) { el.className = 'step active'; }
+                else { el.className = 'step'; }
+            }
         }
 
-        function showResult(html, isSuccess) {
-            const result = document.getElementById('result');
-            result.className = `result ${isSuccess ? 'success' : 'error'}`;
-            result.innerHTML = html;
-            result.style.display = 'block';
-            result.scrollIntoView({ behavior: 'smooth' });
+        function showResult(html, success) {
+            const r = document.getElementById('result');
+            r.className = `result ${success?'success':'error'}`;
+            r.innerHTML = html;
+            r.style.display = 'block';
+            r.scrollIntoView({behavior:'smooth'});
         }
 
         function downloadFile(url, filename) {
-            if (!url) { alert('URL download tidak tersedia'); return; }
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        function showInfo() {
-            alert(`📋 INFO & PRIVACY:
-
-🔹 Data yang dikirim ke AppMaker API:
-   - URL website Anda
-   - File icon & splash screen (jika diupload)
-   - Email (opsional, untuk notifikasi)
-
-🔹 Yang Anda dapatkan:
-   - File APK siap install
-   - File AAB (untuk Play Store)
-   - File .jks keystore + password
-
-⚠️ PENTING:
-   - Simpan informasi keystore dengan AMAN!
-   - Tanpa keystore, Anda TIDAK bisa update aplikasi
-   - Layanan ini gratis dengan batasan penggunaan
-
-🔗 Website: https://appmaker.xyz`);
+            if(!url) { alert('Download URL not available'); return; }
+            const a = document.createElement('a'); a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
 
-        // ========== MAIN BUILD FLOW ==========
+        // ========== FAST BUILD FLOW ==========
         async function buildApp(e) {
             e.preventDefault();
             const btn = document.getElementById('buildBtn');
-            btn.disabled = true;
+            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Building...';
             document.getElementById('result').style.display = 'none';
             
-            // Get form values
-            const config = {
+            const fastMode = document.getElementById('fastMode').checked;
+            // FAST MODE: 2s polling, max 20 attempts (~40s max wait)
+            // NORMAL: 5s polling, max 30 attempts (~150s max wait)
+            const POLL_INTERVAL = fastMode ? 2000 : 5000;
+            const MAX_ATTEMPTS = fastMode ? 20 : 30;
+            
+            const cfg = {
                 url: document.getElementById('url').value,
                 email: document.getElementById('email').value || 'user@example.com',
                 appName: document.getElementById('appName').value,
@@ -478,182 +537,165 @@
                 toolbarTitleColor: document.getElementById('toolbarTitleColor').value,
                 enableShowToolBar: document.getElementById('enableShowToolBar').checked,
                 appIcon: document.getElementById('appIcon').files[0],
-                splashIcon: document.getElementById('splashIcon').files[0]
-            };
+                splashIcon: document.getElementById('splashIcon').files[0]            };
 
             try {
-                // Step 1: Create App
-                showProgress(10, '🔄 Membuat project aplikasi...');
-                const createResult = await appmakerAPI.createApp(config.url, config.email);
-                const appId = createResult.body?.appId;
-                if (!appId) throw new Error('Gagal mendapatkan appId');
+                // Step 1: Create (5%)
+                updateProgress(5, '⚡ Creating project...', 1);
+                const createRes = await appmakerAPI.createApp(cfg.url, cfg.email);
+                const appId = createRes.body?.appId;
+                if(!appId) throw new Error('Failed to get appId');
 
-                // Step 2: Upload App Icon                showProgress(30, '🖼️ Mengupload app icon...');
-                let appIconUrl = 'https://via.placeholder.com/512/6366f1/ffffff?text=APP';
-                if (config.appIcon) {
-                    const iconUpload = await appmakerAPI.uploadFile(config.appIcon, appId);
-                    appIconUrl = iconUpload.cloudStoragePublicUrl;
+                // Step 2: Upload Icon (25%)
+                updateProgress(25, '🖼️ Uploading icon...', 2);
+                let iconUrl = 'https://via.placeholder.com/512/6366f1/fff?text=APP';
+                if(cfg.appIcon) {
+                    const up = await appmakerAPI.uploadFile(cfg.appIcon, appId);
+                    iconUrl = up.cloudStoragePublicUrl;
                 }
 
-                // Step 3: Upload Splash Icon
-                showProgress(50, '✨ Mengupload splash screen...');
-                let splashIconUrl = 'https://via.placeholder.com/512/6366f1/ffffff?text=SPLASH';
-                if (config.splashIcon) {
-                    const splashUpload = await appmakerAPI.uploadFile(config.splashIcon, appId);
-                    splashIconUrl = splashUpload.cloudStoragePublicUrl;
+                // Step 3: Upload Splash (45%)
+                updateProgress(45, '✨ Uploading splash...', 2);
+                let splashUrl = 'https://via.placeholder.com/512/6366f1/fff?text=SPLASH';
+                if(cfg.splashIcon) {
+                    const up = await appmakerAPI.uploadFile(cfg.splashIcon, appId);
+                    splashUrl = up.cloudStoragePublicUrl;
                 }
 
-                // Step 4: Build App
-                showProgress(70, '🔨 Membangun aplikasi (ini bisa memakan waktu 2-5 menit)...');
-                const appConfig = {
-                    appId: appId,
-                    appIcon: appIconUrl,
-                    appName: config.appName,
-                    isPaymentInProgress: false,
-                    enableShowToolBar: config.enableShowToolBar,
-                    toolbarColor: config.toolbarColor,
-                    toolbarTitleColor: config.toolbarTitleColor,
-                    splashIcon: splashIconUrl,
-                    packageName: config.packageName
-                };
-                await appmakerAPI.buildApp(appConfig);
+                // Step 4: Build (65%)
+                updateProgress(65, '🔨 Building app...', 3);
+                await appmakerAPI.buildApp({
+                    appId, appIcon: iconUrl, appName: cfg.appName,
+                    isPaymentInProgress: false, enableShowToolBar: cfg.enableShowToolBar,
+                    toolbarColor: cfg.toolbarColor, toolbarTitleColor: cfg.toolbarTitleColor,
+                    splashIcon: splashUrl, packageName: cfg.packageName
+                });
 
-                // Step 5: Poll Status
-                showProgress(80, '⏳ Menunggu build selesai...');
-                let status, attempts = 0, maxAttempts = 40;
+                // Step 5: Poll Status (80-95%) - FAST MODE
+                updateProgress(80, '⚡ Compiling APK...', 4);
+                let status, attempts = 0;
                 
                 do {
-                    await new Promise(resolve => setTimeout(resolve, 8000));
+                    await new Promise(r => setTimeout(r, POLL_INTERVAL));
                     status = await appmakerAPI.checkStatus(appId);
                     attempts++;
-                    const pct = Math.min(95, 80 + (attempts * 0.4));
-                    showProgress(pct, `⏳ Build progress... (${attempts}/${maxAttempts}) - Status: ${status.body?.status || 'unknown'}`);
                     
-                    if (status.body?.status === 'success') break;
-                    if (status.body?.status === 'failed') throw new Error('❌ Build gagal di server');
-                } while (attempts < maxAttempts);
+                    // Smooth progress animation
+                    const pct = Math.min(95, 80 + (attempts * 0.75));
+                    updateProgress(pct, `⚡ Building... ${attempts}/${MAX_ATTEMPTS} • ${status.body?.status || 'processing'}`, 4);
+                    
+                    if(status.body?.status === 'success') break;
+                    if(status.body?.status === 'failed') throw new Error('Build failed on server');
+                } while(attempts < MAX_ATTEMPTS);
+                if(attempts >= MAX_ATTEMPTS) throw new Error('⏰ Build timeout. Try again or disable Fast Mode.');
 
-                if (attempts >= maxAttempts) {
-                    throw new Error('⏰ Timeout: Build terlalu lama. Coba lagi nanti.');
-                }
+                // Step 6: Download (100%)
+                updateProgress(100, '✅ Ready! Preparing download...', 5);
+                const dl = await appmakerAPI.getDownloadUrl(appId);
+                const body = dl.body;
 
-                // Step 6: Get Download URLs                showProgress(100, '✅ Selesai! Menyiapkan download...');
-                const downloadInfo = await appmakerAPI.getDownloadUrl(appId);
-                const body = downloadInfo.body;
-
-                // Show Success Result
+                // Show success with animation delay for UX
                 setTimeout(() => {
                     showResult(`
-                        <h3><i class="fas fa-check-circle"></i> 🎉 Aplikasi Berhasil Dibuat!</h3>
-                        <p><strong>"${body.appName}"</strong> siap diunduh dan diinstall di perangkat Android Anda.</p>
+                        <h3><i class="fas fa-check-circle"></i> 🎉 Build Complete!</h3>
+                        <p><strong>"${body.appName}"</strong> ready to install!</p>
                         
                         <div class="key-info">
-                            <h4><i class="fas fa-key"></i> ⚠️ SIMPAN INFORMASI KEYSTORE INI!</h4>
-                            <p><strong>Store Password:</strong> <code>${body.storePass}</code></p>
-                            <p><strong>Key Password:</strong> <code>${body.keyPass}</code></p>
-                            <p><strong>Key SHA:</strong> <code>${body.keySha}</code></p>
-                            <p style="margin-top:8px;font-size:0.75rem;color:var(--text-muted)">
-                                🔐 Tanpa keystore ini, Anda <strong>tidak bisa update</strong> aplikasi di Play Store!
-                            </p>
+                            <h4><i class="fas fa-key"></i> ⚠️ SAVE KEYSTORE INFO!</h4>
+                            <p><strong>Store Pass:</strong> <code onclick="navigator.clipboard.writeText('${body.storePass}')">${body.storePass}</code></p>
+                            <p><strong>Key Pass:</strong> <code onclick="navigator.clipboard.writeText('${body.keyPass}')">${body.keyPass}</code></p>
+                            <p><strong>SHA:</strong> <code>${body.keySha}</code></p>
                         </div>
                         
                         <div class="download-btns">
-                            <button class="download-btn apk" onclick="downloadFile('${body.buildFile}', '${body.appName}.apk')">
-                                <i class="fas fa-download"></i> Download APK
+                            <button class="download-btn apk" onclick="downloadFile('${body.buildFile}','${body.appName}.apk')">
+                                <i class="fas fa-download"></i> APK
                             </button>
-                            <button class="download-btn aab" onclick="downloadFile('${body.aabFile}', '${body.appName}.aab')">
-                                <i class="fas fa-box"></i> Download AAB
+                            <button class="download-btn aab" onclick="downloadFile('${body.aabFile}','${body.appName}.aab')">
+                                <i class="fas fa-box"></i> AAB
                             </button>
-                            <button class="download-btn key" onclick="downloadFile('${body.keyFile}', '${body.appName}.jks')">
-                                <i class="fas fa-key"></i> Download Keystore
+                            <button class="download-btn key" onclick="downloadFile('${body.keyFile}','${body.appName}.jks')">
+                                <i class="fas fa-key"></i> Keystore
                             </button>
                         </div>
                         
-                        <p style="margin-top:16px;font-size:0.85rem;color:var(--text-muted)">
-                            📱 <strong>Cara Install:</strong> Transfer APK ke HP → Buka File Manager → Tap file APK → Izinkan "Install from unknown sources" → Install.
+                        <p style="margin-top:12px;font-size:0.8rem;color:var(--text-muted)">
+                            📱 Install: Transfer APK → File Manager → Tap → Allow "Unknown Sources" → Install
                         </p>
                     `, true);
-                }, 500);
+                }, 300);
 
-            } catch (error) {
-                console.error('Build error:', error);
+            } catch(err) {
+                console.error('Build error:', err);
                 showResult(`
-                    <h3><i class="fas fa-exclamation-triangle"></i> ❌ Terjadi Kesalahan</h3>
-                    <p><strong>${error.message || 'Proses build gagal'}</strong></p>
+                    <h3><i class="fas fa-exclamation-triangle"></i> ❌ Build Failed</h3>
+                    <p><strong>${err.message || 'Unknown error'}</strong></p>
                     <p style="margin-top:10px;font-size:0.9rem">
-                        Kemungkinan penyebab:<br>
-                        • URL website tidak dapat diakses<br>
-                        • Server API sedang maintenance<br>
-                        • Package name sudah digunakan<br>
-                        • File icon terlalu besar (>5MB)
-                    </p>                    <button class="btn" onclick="location.reload()" style="margin-top:15px;background:var(--card);border:1px solid var(--border);color:var(--text)">
-                        <i class="fas fa-redo"></i> Coba Lagi
-                    </button>
-                `, false);
+                        Tips:<br>• Check URL is public & HTTPS<br>• Try disabling Fast Mode<br>• Wait 1 min & retry
+                    </p>
+                    <button class="btn" onclick="location.reload()" style="margin-top:15px;background:var(--card);border:1px solid var(--border)">
+                        <i class="fas fa-redo"></i> Retry
+                    </button>                `, false);
             } finally {
                 btn.disabled = false;
-                setTimeout(() => {
-                    document.getElementById('progressContainer').style.display = 'none';
-                }, 2000);
+                btn.innerHTML = '<i class="fas fa-rocket"></i> 🚀 BUILD APK (FAST MODE)';
+                setTimeout(() => { document.getElementById('progressContainer').style.display = 'none'; }, 2000);
             }
         }
 
         // ========== INIT ==========
-        document.addEventListener('DOMContentLoaded', function() {
-            // Particles.js
-            if (typeof particlesJS !== 'undefined') {
+        document.addEventListener('DOMContentLoaded', () => {
+            // Particles
+            if(typeof particlesJS !== 'undefined') {
                 particlesJS('particles-js', {
                     particles: {
-                        number: { value: window.innerWidth < 768 ? 40 : 80, density: { enable: true, value_area: 800 } },
-                        color: { value: '#ffffff' },
-                        shape: { type: 'circle' },
-                        opacity: { value: 0.4, random: true },
-                        size: { value: 2.5, random: true },
-                        line_linked: { enable: true, distance: 140, color: '#ffffff', opacity: 0.3, width: 1 },
-                        move: { enable: true, speed: 1.5, direction: 'none', random: false, straight: false, out_mode: 'out' }
+                        number: { value: window.innerWidth<768?30:60, density:{enable:true,value_area:700} },
+                        color: { value: '#ffffff' }, shape: { type: 'circle' },
+                        opacity: { value: 0.3, random: true }, size: { value: 2, random: true },
+                        line_linked: { enable: true, distance: 120, color: '#ffffff', opacity: 0.2, width: 1 },
+                        move: { enable: true, speed: 2, direction: 'none', out_mode: 'out' }
                     },
                     interactivity: {
                         detect_on: 'canvas',
-                        events: { onhover: { enable: true, mode: 'grab' }, onclick: { enable: true, mode: 'push' }, resize: true },
-                        modes: { grab: { distance: 180, line_linked: { opacity: 0.6 } }, push: { particles_nb: 3 } }
+                        events: { onhover:{enable:true,mode:'grab'}, onclick:{enable:true,mode:'push'}, resize: true },
+                        modes: { grab: { distance: 150, line_linked:{opacity:0.5} }, push: { particles_nb: 2 } }
                     },
                     retina_detect: true
                 });
             }
 
-            // Theme Toggle
-            const themeSwitch = document.getElementById('themeSwitch');
-            const themeIcon = themeSwitch.querySelector('i');
-            if (localStorage.getItem('theme') === 'dark' || 
-                (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            // Theme
+            const themeBtn = document.getElementById('themeSwitch');
+            const themeIcon = themeBtn.querySelector('i');
+            if(localStorage.getItem('theme')==='dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme:dark)').matches)) {
                 document.body.classList.add('dark-mode');
-                themeIcon.classList.replace('fa-moon', 'fa-sun');
+                themeIcon.classList.replace('fa-moon','fa-sun');
             }
-            themeSwitch.addEventListener('click', function() {
+            themeBtn.onclick = () => {
                 document.body.classList.toggle('dark-mode');
-                const isDark = document.body.classList.contains('dark-mode');
-                localStorage.setItem('theme', isDark ? 'dark' : 'light');
-                themeIcon.classList.replace(isDark ? 'fa-moon' : 'fa-sun', isDark ? 'fa-sun' : 'fa-moon');
-            });
-            // Color Sync
+                const dark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('theme', dark?'dark':'light');
+                themeIcon.classList.replace(dark?'fa-moon':'fa-sun', dark?'fa-sun':'fa-moon');
+            };
+
+            // Color sync
             syncColor(document.getElementById('toolbarColor'), document.getElementById('toolbarColorText'));
             syncColor(document.getElementById('toolbarTitleColor'), document.getElementById('toolbarTitleColorText'));
-
-            // Icon Preview
-            previewIcon(document.getElementById('appIcon'), document.getElementById('appIconPreview'), document.getElementById('appIconPlaceholder'));
-            previewIcon(document.getElementById('splashIcon'), document.getElementById('splashIconPreview'), document.getElementById('splashIconPlaceholder'));
-
-            // Form Submit
-            document.getElementById('appForm').addEventListener('submit', buildApp);
-
-            // Auto-fill package name from app name
-            document.getElementById('appName').addEventListener('blur', function() {
+            
+            // Icon preview
+            previewIcon(document.getElementById('appIcon'), document.getElementById('appIconPreview'), document.querySelector('.preview-box:nth-child(1) .preview-placeholder'));
+            previewIcon(document.getElementById('splashIcon'), document.getElementById('splashIconPreview'), document.querySelector('.preview-box:nth-child(2) .preview-placeholder'));
+            // Form
+            document.getElementById('appForm').onsubmit = buildApp;
+            
+            // Auto package name
+            document.getElementById('appName').onblur = function() {
                 const pkg = document.getElementById('packageName');
-                if (!pkg.value || pkg.value === 'com.myapp.app') {
-                    const name = this.value.toLowerCase().replace(/[^a-z0-9]/g, '');
-                    pkg.value = `com.${name || 'myapp'}.app`;
+                if(!pkg.value || pkg.value==='com.myapp.app') {
+                    const name = this.value.toLowerCase().replace(/[^a-z0-9]/g,'');
+                    pkg.value = `com.${name||'myapp'}.app`;
                 }
-            });
+            };
         });
     </script>
 </body>
