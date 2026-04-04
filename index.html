@@ -3,1539 +3,658 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web to APK Builder - Langsung Jadi APK</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <title>🚀 Direct APK Builder - AppMaker API</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-
         :root {
-            --primary: #6C5CE7;
-            --primary-dark: #5A4BD1;
-            --primary-light: #A29BFE;
-            --secondary: #00CEC9;
-            --accent: #FD79A8;
-            --bg-dark: #0a0a1a;
-            --bg-card: #12122a;
-            --bg-card-hover: #1a1a3e;
-            --bg-input: #1e1e42;
-            --text-primary: #FFFFFF;
-            --text-secondary: #B0B0D0;
-            --text-muted: #6C6C8A;
-            --border: #2a2a5a;
-            --success: #00B894;
-            --warning: #FDCB6E;
-            --danger: #FF7675;
-            --gradient-1: linear-gradient(135deg, #6C5CE7, #A29BFE);
-            --gradient-2: linear-gradient(135deg, #00CEC9, #55EFC4);
-            --gradient-3: linear-gradient(135deg, #FD79A8, #FDCB6E);
-            --shadow: 0 10px 40px rgba(0,0,0,0.3);
-            --shadow-glow: 0 0 30px rgba(108, 92, 231, 0.3);
+            --primary: #6366f1; --primary-dark: #4f46e5; --secondary: #10b981;
+            --accent: #f59e0b; --bg: #0b0f19; --card: #111827; --card-hover: #1f2937;
+            --text: #f9fafb; --text-muted: #9ca3af; --border: #1f2937; --error: #ef4444;
+            --gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+            --shadow: 0 10px 40px rgba(0,0,0,0.3); --shadow-glow: 0 0 30px rgba(99,102,241,0.2);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg); color: var(--text); min-height: 100vh;
+            overflow-x: hidden; line-height: 1.6;
         }
-
-        .bg-animation {
+        #particles-js {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; overflow: hidden; pointer-events: none;
+            z-index: 0; pointer-events: none;
         }
-        .bg-animation .orb {
-            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.12;            animation: float 20s infinite ease-in-out;
+        .container { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 20px; }
+        
+        /* Header */
+        header { text-align: center; padding: 40px 20px 30px; }
+        .badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(16,185,129,0.15); color: var(--secondary);
+            padding: 6px 14px; border-radius: 50px; font-size: 0.75rem;
+            font-weight: 600; margin-bottom: 15px; border: 1px solid rgba(16,185,129,0.3);
         }
-        .bg-animation .orb:nth-child(1) { width: 600px; height: 600px; background: var(--primary); top: -200px; right: -200px; animation-delay: 0s; }
-        .bg-animation .orb:nth-child(2) { width: 400px; height: 400px; background: var(--secondary); bottom: -100px; left: -100px; animation-delay: -7s; }
-        .bg-animation .orb:nth-child(3) { width: 300px; height: 300px; background: var(--accent); top: 50%; left: 50%; animation-delay: -14s; }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(50px, -50px) scale(1.1); }
-            50% { transform: translate(-30px, 30px) scale(0.9); }
-            75% { transform: translate(40px, 40px) scale(1.05); }
-        }
-
-        .navbar {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            background: rgba(10, 10, 26, 0.85); backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border); padding: 0 2rem;
-            height: 70px; display: flex; align-items: center; justify-content: space-between;
-        }
-        .navbar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-        .navbar-brand .logo {
-            width: 42px; height: 42px; background: var(--gradient-1);
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            font-size: 20px; box-shadow: var(--shadow-glow);
-        }
-        .navbar-brand h1 {
-            font-size: 1.3rem; font-weight: 800;
-            background: var(--gradient-1); -webkit-background-clip: text;
+        .badge i { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.4 } }
+        
+        h1 {
+            font-size: 2.5rem; font-weight: 800; margin-bottom: 10px;
+            background: var(--gradient); -webkit-background-clip: text;
             -webkit-text-fill-color: transparent; background-clip: text;
         }
-        .navbar-brand span { font-size: 0.65rem; color: var(--text-muted); display: block; margin-top: -2px; }
-
-        .main-content {
-            position: relative; z-index: 1; padding-top: 90px;
-            max-width: 1000px; margin: 0 auto; padding-left: 1.5rem;
-            padding-right: 1.5rem; padding-bottom: 4rem;
+        header p { color: var(--text-muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto; }
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed; top: 20px; right: 20px; z-index: 100;            width: 44px; height: 44px; border-radius: 12px;
+            background: var(--card); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s; color: var(--text-muted);
         }
-
-        .hero { text-align: center; padding: 2rem 0; }
-        .hero-badge {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(108, 92, 231, 0.15); border: 1px solid rgba(108, 92, 231, 0.3);
-            padding: 6px 16px; border-radius: 50px; font-size: 0.8rem;
-            color: var(--primary-light); margin-bottom: 1.2rem;
-        }
-        .hero-badge .dot {
-            width: 8px; height: 8px; background: var(--success);
-            border-radius: 50%; animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .hero h2 {
-            font-size: 2.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 0.8rem;
-        }
-        .hero h2 .gradient-text {
-            background: var(--gradient-1); -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent; background-clip: text;
-        }
-        .hero h2 .gradient-text-2 {
-            background: var(--gradient-2); -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent; background-clip: text;
-        }
-        .hero p {
-            color: var(--text-secondary); font-size: 1rem;
-            max-width: 550px; margin: 0 auto; line-height: 1.6;
-        }
-
+        .theme-toggle:hover { background: var(--card-hover); color: var(--primary); border-color: var(--primary); }
+        
+        /* Cards */
         .card {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 20px; padding: 1.8rem; margin-bottom: 1.2rem;
-            transition: all 0.3s;
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px; margin-bottom: 20px;
+            transition: all 0.3s; box-shadow: var(--shadow);
         }
-        .card:hover {
-            border-color: rgba(108, 92, 231, 0.3);
-            box-shadow: 0 0 30px rgba(108, 92, 231, 0.1);
+        .card:hover { border-color: rgba(99,102,241,0.4); box-shadow: var(--shadow-glow); }
+        .card h3 {
+            color: var(--primary); margin-bottom: 18px; display: flex;
+            align-items: center; gap: 10px; font-size: 1.1rem; font-weight: 700;
         }
-        .card-header {
-            display: flex; align-items: center; gap: 12px; margin-bottom: 1.3rem;
+        .card h3 i { width: 28px; height: 28px; border-radius: 8px; background: rgba(99,102,241,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        
+        /* Form */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .full { grid-column: 1 / -1; }
+        label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; font-weight: 500; }
+        label .req { color: var(--error); margin-left: 2px; }
+        input, select {
+            width: 100%; padding: 11px 14px; background: #0f172a;
+            border: 1px solid var(--border); color: var(--text);
+            border-radius: 10px; font-size: 0.9rem; transition: all 0.2s;
         }
-        .card-icon {
-            width: 44px; height: 44px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+        input:focus, select:focus {
+            outline: none; border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
         }
-        .card-icon.purple { background: rgba(108, 92, 231, 0.2); }
-        .card-icon.teal { background: rgba(0, 206, 201, 0.2); }
-        .card-icon.pink { background: rgba(253, 121, 168, 0.2); }
-        .card-icon.yellow { background: rgba(253, 203, 110, 0.2); }
-        .card-icon.green { background: rgba(0, 184, 148, 0.2); }
-        .card-header h3 { font-size: 1.05rem; font-weight: 700; }
-        .card-header p { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
-
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-group.full-width { grid-column: 1 / -1; }
-        .form-group label {
-            font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);
-            display: flex; align-items: center; gap: 5px;
-        }
-        .form-group label .req { color: var(--accent); }
-        .form-group input, .form-group select, .form-group textarea {            background: var(--bg-input); border: 1px solid var(--border);
-            border-radius: 12px; padding: 11px 14px; color: var(--text-primary);
-            font-family: 'Inter', sans-serif; font-size: 0.85rem;
-            transition: all 0.3s; outline: none;
-        }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            border-color: var(--primary); box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
-        }
-        .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-muted); }
-        .form-group textarea { resize: vertical; min-height: 60px; }
-        .form-group select {
-            cursor: pointer; appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236C6C8A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
-        }
-        .form-group select option { background: var(--bg-card); color: var(--text-primary); }
-
-        .color-group { display: flex; align-items: center; gap: 8px; }
+        input::placeholder { color: var(--text-muted); }
+        
+        /* Color Picker */
+        .color-group { display: flex; align-items: center; gap: 10px; }
         .color-group input[type="color"] {
-            width: 42px; height: 42px; padding: 3px; border-radius: 10px;
-            cursor: pointer; border: 1px solid var(--border);
+            width: 44px; height: 44px; padding: 3px; border-radius: 10px;
+            cursor: pointer; border: 1px solid var(--border); background: transparent;
         }
-        .color-group input[type="text"] { flex: 1; }
-
-        .url-group {
-            display: flex; gap: 0; border-radius: 14px; overflow: hidden;
-            border: 1px solid var(--border); background: var(--bg-input);
+        .color-group input[type="text"] { flex: 1; font-family: monospace; }
+        
+        /* Icon Preview */
+        .icon-preview {
+            display: flex; gap: 20px; align-items: center; margin-top: 10px; flex-wrap: wrap;
         }
-        .url-group .prefix {
-            padding: 11px 14px; color: var(--text-muted); font-size: 0.82rem;
-            background: rgba(108, 92, 231, 0.1); display: flex; align-items: center; font-weight: 500;
+        .preview-box {
+            text-align: center; background: #0f172a; padding: 12px;            border-radius: 12px; border: 1px solid var(--border);
         }
-        .url-group input {
-            flex: 1; border: none !important; background: transparent !important;
-            padding: 11px 14px !important; box-shadow: none !important; border-radius: 0 !important;
+        .preview-box img {
+            width: 80px; height: 80px; border-radius: 16px;
+            object-fit: contain; background: var(--card);
+            display: none; margin-bottom: 8px;
         }
-        .url-group button {
-            padding: 11px 18px; background: var(--gradient-1); border: none;
-            color: white; font-weight: 600; font-size: 0.82rem; cursor: pointer;
-            font-family: 'Inter', sans-serif; transition: all 0.3s;
+        .preview-box span { font-size: 0.7rem; color: var(--text-muted); }
+        .preview-placeholder {
+            width: 80px; height: 80px; border-radius: 16px;
+            background: var(--gradient); display: flex;
+            align-items: center; justify-content: center;
+            font-size: 2rem; margin-bottom: 8px;
         }
-        .url-group button:hover { opacity: 0.85; }
-
-        .emoji-picker { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 0.8rem; }
-        .emoji-btn {
-            font-size: 1.4rem; padding: 6px 10px; background: var(--bg-input);
-            border: 1px solid var(--border); border-radius: 10px; cursor: pointer;
-            transition: all 0.2s;
-        }
-        .emoji-btn:hover, .emoji-btn.active {            border-color: var(--primary); background: rgba(108, 92, 231, 0.15);
-            transform: scale(1.1);
-        }
-
-        .toggle-group {
+        
+        /* Toggle */
+        .toggle-row {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 10px 0; border-bottom: 1px solid rgba(42, 42, 90, 0.4);
+            padding: 10px 0; border-bottom: 1px solid rgba(31,41,55,0.5);
         }
-        .toggle-group:last-child { border-bottom: none; }
-        .toggle-label .title { font-size: 0.82rem; font-weight: 600; }
-        .toggle-label .desc { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; }
-        .toggle { position: relative; width: 46px; height: 24px; }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-label .title { font-size: 0.85rem; font-weight: 600; }
+        .toggle-label .desc { font-size: 0.7rem; color: var(--text-muted); }
+        .toggle {
+            position: relative; width: 48px; height: 26px;
+        }
         .toggle input { opacity: 0; width: 0; height: 0; }
         .toggle-slider {
             position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-input); border: 1px solid var(--border);
+            background: #0f172a; border: 1px solid var(--border);
             border-radius: 26px; transition: all 0.3s;
         }
         .toggle-slider::before {
-            content: ''; position: absolute; width: 18px; height: 18px;
+            content: ''; position: absolute; width: 20px; height: 20px;
             left: 2px; bottom: 2px; background: var(--text-muted);
             border-radius: 50%; transition: all 0.3s;
         }
-        .toggle input:checked + .toggle-slider { background: rgba(108, 92, 231, 0.3); border-color: var(--primary); }
-        .toggle input:checked + .toggle-slider::before { transform: translateX(22px); background: var(--primary); }
-
+        .toggle input:checked + .toggle-slider { background: var(--primary); border-color: var(--primary); }
+        .toggle input:checked + .toggle-slider::before { transform: translateX(22px); background: white; }
+        
+        /* Buttons */
         .btn {
-            padding: 12px 24px; border-radius: 12px; border: none;
-            font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600;
-            cursor: pointer; transition: all 0.3s; display: inline-flex;
-            align-items: center; gap: 8px;
+            width: 100%; padding: 14px 20px; border: none; border-radius: 12px;
+            font-weight: 700; cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-size: 0.95rem;
         }
-        .btn-primary { background: var(--gradient-1); color: white; box-shadow: var(--shadow-glow); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(108, 92, 231, 0.4); }
-        .btn-success { background: var(--gradient-2); color: #0a0a1a; }
-        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0, 206, 201, 0.3); }
-        .btn-secondary { background: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border); }
-        .btn-secondary:hover { border-color: var(--primary); color: var(--primary-light); }
-        .btn-lg { padding: 14px 28px; font-size: 0.95rem; border-radius: 14px; }
-        .btn-block { width: 100%; justify-content: center; }
-        .btn-group { display: flex; gap: 10px; margin-top: 1.3rem; flex-wrap: wrap; }
-
-        /* Progress Section */
-        .build-progress {
-            display: none;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 2rem;
-            text-align: center;        }
-        .build-progress.show { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .build-animation {
-            width: 120px; height: 120px; margin: 0 auto 1.5rem;
-            position: relative;
+        .btn-primary {
+            background: var(--gradient); color: white;
+            box-shadow: var(--shadow-glow);        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px); box-shadow: 0 15px 50px rgba(99,102,241,0.4);
         }
-        .build-ring {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            border: 4px solid transparent; border-top-color: var(--primary);
-            border-radius: 50%; animation: spin 1.2s linear infinite;
-        }
-        .build-ring:nth-child(2) {
-            top: 10px; left: 10px; width: calc(100% - 20px); height: calc(100% - 20px);
-            border-top-color: var(--secondary); animation-duration: 1.5s; animation-direction: reverse;
-        }
-        .build-ring:nth-child(3) {
-            top: 20px; left: 20px; width: calc(100% - 40px); height: calc(100% - 40px);
-            border-top-color: var(--accent); animation-duration: 2s;
-        }
-        .build-icon {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 2.5rem;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .build-steps {
-            display: flex; flex-direction: column; gap: 8px;
-            max-width: 400px; margin: 1.5rem auto 0; text-align: left;
-        }
-        .build-step {
-            display: flex; align-items: center; gap: 10px;
-            padding: 8px 12px; border-radius: 8px; font-size: 0.8rem;
-            color: var(--text-muted); transition: all 0.3s;
-        }
-        .build-step.active { color: var(--primary-light); background: rgba(108, 92, 231, 0.1); }
-        .build-step.done { color: var(--success); }
-        .build-step .step-icon { font-size: 1rem; width: 24px; text-align: center; }
-
-        .progress-bar-container {
-            width: 100%; max-width: 400px; margin: 1.5rem auto 0;
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        
+        /* Progress */
+        .progress-container {
+            display: none; margin-top: 20px; padding: 20px;
+            background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 12px;
         }
         .progress-bar {
-            width: 100%; height: 8px; background: var(--bg-input);
-            border-radius: 8px; overflow: hidden;
+            width: 100%; height: 8px; background: #0f172a;
+            border-radius: 8px; overflow: hidden; margin-bottom: 10px;
         }
         .progress-fill {
-            height: 100%; background: var(--gradient-1); border-radius: 8px;
-            transition: width 0.4s ease; width: 0%;        }
+            height: 100%; background: var(--gradient); border-radius: 8px;
+            transition: width 0.4s ease; width: 0%;
+        }
         .progress-text {
-            display: flex; justify-content: space-between; font-size: 0.7rem;
-            color: var(--text-muted); margin-top: 6px;
+            font-size: 0.8rem; color: var(--text-muted); text-align: center;
         }
-
-        /* Success Screen */
-        .success-screen {
-            display: none; text-align: center; padding: 2rem;
+        
+        /* Result */
+        .result {
+            display: none; margin-top: 20px; padding: 24px;
+            border-radius: 16px; animation: slideUp 0.4s ease;
         }
-        .success-screen.show { display: block; animation: fadeIn 0.5s ease; }
-        .success-icon {
-            width: 100px; height: 100px; margin: 0 auto 1.5rem;
-            background: rgba(0, 184, 148, 0.15); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 3rem; animation: successBounce 0.6s ease;
+        @keyframes slideUp { from { opacity:0; transform:translateY(20px) } to { opacity:1; transform:translateY(0) } }
+        .result.success {
+            background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);
         }
-        @keyframes successBounce {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+        .result.error {
+            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
         }
-        .success-screen h3 {
-            font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;
+        .result h3 { margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .result.success h3 { color: var(--secondary); }
+        .result.error h3 { color: var(--error); }
+        
+        .key-info {
+            background: #0f172a; border-radius: 10px; padding: 16px;
+            margin: 16px 0; border-left: 3px solid var(--accent);
         }
-        .success-screen p {
-            color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;
+        .key-info h4 { font-size: 0.9rem; margin-bottom: 10px; color: var(--accent); }
+        .key-info p { font-size: 0.8rem; margin: 4px 0; font-family: monospace; }
+        .key-info code { background: rgba(245,158,11,0.1); padding: 2px 6px; border-radius: 4px; }
+        
+        .download-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+        .download-btn {            flex: 1; min-width: 150px; padding: 12px; border: none;
+            border-radius: 10px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            transition: all 0.2s; font-size: 0.85rem;
         }
-        .file-info {
-            background: var(--bg-input); border-radius: 12px; padding: 1rem;
-            max-width: 350px; margin: 0 auto 1.5rem; text-align: left;
+        .download-btn.apk { background: var(--secondary); color: #022c22; }
+        .download-btn.aab { background: var(--primary); color: white; }
+        .download-btn.key { background: var(--accent); color: #451a03; }
+        .download-btn:hover { transform: translateY(-2px); opacity: 0.95; }
+        
+        /* Footer */
+        footer {
+            text-align: center; padding: 30px 20px; color: var(--text-muted);
+            font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 20px;
         }
-        .file-info-row {
-            display: flex; justify-content: space-between; padding: 6px 0;
-            font-size: 0.8rem; border-bottom: 1px solid rgba(42, 42, 90, 0.3);
-        }
-        .file-info-row:last-child { border-bottom: none; }
-        .file-info-row .label { color: var(--text-muted); }
-        .file-info-row .value { font-weight: 600; }
-
-        /* Phone Preview Mini */
-        .phone-mini {
-            width: 180px; margin: 0 auto 1.5rem;
-            background: #1a1a2e; border-radius: 24px; padding: 8px;
-            border: 2px solid #2a2a4a;
-        }
-        .phone-screen-mini {
-            background: white; border-radius: 18px; overflow: hidden;
-            aspect-ratio: 9/16; position: relative;
-        }        .phone-notch-mini {
-            width: 80px; height: 16px; background: #1a1a2e;
-            border-radius: 0 0 10px 10px; margin: 0 auto; position: relative; z-index: 2;
-        }
-        .phone-status-mini {
-            background: var(--primary); padding: 5px 10px;
-            display: flex; justify-content: space-between; align-items: center;
-            color: white; font-size: 0.5rem; font-weight: 600;
-        }
-        .phone-app-mini {
-            padding: 12px; text-align: center;
-        }
-        .phone-app-icon-mini {
-            width: 48px; height: 48px; border-radius: 12px;
-            background: var(--gradient-1); margin: 12px auto 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem;
-        }
-        .phone-app-name-mini { color: #333; font-size: 0.8rem; font-weight: 700; }
-        .phone-app-desc-mini { color: #666; font-size: 0.55rem; }
-
-        /* Toast */
-        .toast-container { position: fixed; top: 80px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-        .toast {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 12px; padding: 12px 18px; display: flex; align-items: center;
-            gap: 10px; box-shadow: var(--shadow); animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
-            min-width: 250px;
-        }
-        .toast.success { border-left: 3px solid var(--success); }
-        .toast.error { border-left: 3px solid var(--danger); }
-        .toast.info { border-left: 3px solid var(--primary); }
-        .toast .toast-icon { font-size: 1.1rem; }
-        .toast .toast-msg { font-size: 0.78rem; font-weight: 500; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
-
-        .footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border); margin-top: 2rem; }
-        .footer p { color: var(--text-muted); font-size: 0.75rem; }
-
+        footer a { color: var(--primary); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        
+        /* Responsive */
         @media (max-width: 768px) {
-            .hero h2 { font-size: 1.8rem; }
             .form-grid { grid-template-columns: 1fr; }
-            .navbar { padding: 0 1rem; }
-            .card { padding: 1.3rem; }
+            h1 { font-size: 1.8rem; }
+            .icon-preview { flex-direction: column; align-items: flex-start; }
+            .download-btns { flex-direction: column; }
         }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-dark); }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }    </style>
+    </style>
 </head>
 <body>
-    <div class="bg-animation">
-        <div class="orb"></div><div class="orb"></div><div class="orb"></div>
-    </div>
+    <div id="particles-js"></div>
+    
+    <button class="theme-toggle" id="themeSwitch" title="Toggle Theme">
+        <i class="fas fa-moon"></i>
+    </button>
+    
+    <div class="container">
+        <header>
+            <div class="badge"><i class="fas fa-bolt"></i> DIRECT APK GENERATOR</div>
+            <h1>🚀 Web to APK</h1>
+            <p>Masukkan URL website → Konfigurasi → Download APK langsung. Powered by AppMaker API.</p>
+        </header>
 
-    <nav class="navbar">
-        <div class="navbar-brand">
-            <div class="logo">⚡</div>
-            <div>
-                <h1>Web to APK</h1>
-                <span>Build APK Langsung dari Browser</span>
-            </div>
-        </div>
-    </nav>
-
-    <div class="main-content">
-        <div class="hero">
-            <div class="hero-badge">
-                <span class="dot"></span>
-                Langsung Download APK — Tanpa Install Software
-            </div>
-            <h2>
-                Website → <span class="gradient-text">APK</span> <span class="gradient-text-2">Instant</span>
-            </h2>
-            <p>Masukkan URL website, konfigurasi, lalu download file APK yang siap di-install di Android.</p>
-        </div>
-
-        <!-- Config Card -->
-        <div class="card" id="configCard">
-            <div class="card-header">
-                <div class="card-icon purple">📱</div>
-                <div>
-                    <h3>Konfigurasi Aplikasi</h3>
-                    <p>Isi detail aplikasi Android Anda</p>
-                </div>
-            </div>
-
-            <div class="form-grid">
-                <div class="form-group full-width">
-                    <label>🌐 URL Website <span class="req">*</span></label>
-                    <div class="url-group">
-                        <span class="prefix">https://</span>
-                        <input type="text" id="siteUrl" placeholder="example.com" value="">
-                        <button onclick="autoFill()">⚡ Auto</button>
+        <form id="appForm">
+            <!-- Basic Config -->
+            <div class="card">
+                <h3><i class="fas fa-cog"></i> Konfigurasi Dasar</h3>
+                <div class="form-grid">
+                    <div class="full">
+                        <label>🌐 URL Website <span class="req">*</span></label>
+                        <input type="url" id="url" placeholder="https://websiteanda.com" required value="https://example.com">
+                    </div>                    <div class="full">
+                        <label>📧 Email (untuk notifikasi build)</label>
+                        <input type="email" id="email" placeholder="anda@email.com">
                     </div>
-                </div>
-                <div class="form-group">
-                    <label>📌 Nama Aplikasi <span class="req">*</span></label>                    <input type="text" id="appName" placeholder="My Awesome App" value="My Web App">
-                </div>
-                <div class="form-group">
-                    <label>🏷️ Package Name <span class="req">*</span></label>
-                    <input type="text" id="packageName" placeholder="com.myapp.app" value="com.mywebapp.app">
-                </div>
-                <div class="form-group">
-                    <label>🔢 Version Code</label>
-                    <input type="number" id="versionCode" value="1" min="1">
-                </div>
-                <div class="form-group">
-                    <label>📝 Version Name</label>
-                    <input type="text" id="versionName" value="1.0.0">
-                </div>
-                <div class="form-group full-width">
-                    <label>📄 Deskripsi</label>
-                    <textarea id="appDesc" placeholder="Deskripsi aplikasi...">Web App converted to APK</textarea>
-                </div>
-                <div class="form-group">
-                    <label>🎨 Warna Tema</label>
-                    <div class="color-group">
-                        <input type="color" id="themeColor" value="#6C5CE7" oninput="document.getElementById('themeColorText').value=this.value">
-                        <input type="text" id="themeColorText" value="#6C5CE7" oninput="document.getElementById('themeColor').value=this.value">
+                    <div>
+                        <label>📱 Nama Aplikasi <span class="req">*</span></label>
+                        <input type="text" id="appName" placeholder="My Awesome App" required value="MyApp">
                     </div>
-                </div>
-                <div class="form-group">
-                    <label>🖼️ Warna Background</label>
-                    <div class="color-group">
-                        <input type="color" id="bgColor" value="#ffffff" oninput="document.getElementById('bgColorText').value=this.value">
-                        <input type="text" id="bgColorText" value="#ffffff" oninput="document.getElementById('bgColor').value=this.value">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>📐 Orientasi</label>
-                    <select id="orientation">
-                        <option value="unspecified">Unspecified</option>
-                        <option value="portrait" selected>Portrait</option>
-                        <option value="landscape">Landscape</option>
-                        <option value="sensor">Sensor</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>📱 Min SDK</label>
-                    <select id="minSdk">
-                        <option value="21" selected>API 21 (Android 5.0)</option>
-                        <option value="23">API 23 (Android 6.0)</option>
-                        <option value="24">API 24 (Android 7.0)</option>
-                        <option value="26">API 26 (Android 8.0)</option>
-                        <option value="28">API 28 (Android 9.0)</option>
-                    </select>                </div>
-            </div>
-
-            <div style="margin-top: 1rem;">
-                <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary);">🎭 Pilih Icon:</label>
-                <div class="emoji-picker" id="emojiPicker">
-                    <button class="emoji-btn active" onclick="selectEmoji(this, '🚀')">🚀</button>
-                    <button class="emoji-btn" onclick="selectEmoji(this, '⚡')">⚡</button>
-                    <button class="emoji-btn" onclick="selectEmoji(this, '🌐')">🌐</button>
-                    <button class="emoji-btn" onclick="selectEmoji(this, '📱')">📱</button>
-                    <button class="emoji-btn" onclick="selectEmoji(this, '🛒')">🛒</button>
-                    <button class="emoji-btn" onclick="selectEmoji(this, '📰')">📰</button>
-                    <button class="emoji-btn" onclick="selectEmoji(this, '💬')">💬</button>
-                    <button class="emoji-btn" onclick="selectEmoji(this, '🎮')">🎮</button>
-                    <button class="emoji-btn" onclick="selectEmoji(this, '🎵')">🎵</button>
-                    <button class="emoji-btn" onclick="selectEmoji(this, '📸')">📸</button>
-                </div>
-            </div>
-
-            <div style="margin-top: 1rem;">
-                <div class="toggle-group">
-                    <div class="toggle-label">
-                        <span class="title">📴 Offline Support</span>
-                        <span class="desc">Cache website untuk akses offline</span>
-                    </div>
-                    <label class="toggle">
-                        <input type="checkbox" id="offlineSupport" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="toggle-group">
-                    <div class="toggle-label">
-                        <span class="title">🔔 Push Notification</span>
-                        <span class="desc">Dukung notifikasi push</span>
-                    </div>
-                    <label class="toggle">
-                        <input type="checkbox" id="pushNotif">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="toggle-group">
-                    <div class="toggle-label">
-                        <span class="title">📍 Geolocation</span>
-                        <span class="desc">Akses lokasi GPS</span>
-                    </div>
-                    <label class="toggle">
-                        <input type="checkbox" id="geolocation" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>                <div class="toggle-group">
-                    <div class="toggle-label">
-                        <span class="title">📷 Camera</span>
-                        <span class="desc">Akses kamera perangkat</span>
-                    </div>
-                    <label class="toggle">
-                        <input type="checkbox" id="camera">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="toggle-group">
-                    <div class="toggle-label">
-                        <span class="title">📂 File Access</span>
-                        <span class="desc">Akses storage perangkat</span>
-                    </div>
-                    <label class="toggle">
-                        <input type="checkbox" id="storage">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="btn-group" style="justify-content: center;">
-                <button class="btn btn-success btn-lg btn-block" onclick="buildAPK()">
-                    📦 BUILD & DOWNLOAD APK
-                </button>
-            </div>
-        </div>
-
-        <!-- Build Progress -->
-        <div class="build-progress" id="buildProgress">
-            <div class="build-animation">
-                <div class="build-ring"></div>
-                <div class="build-ring"></div>
-                <div class="build-ring"></div>
-                <div class="build-icon" id="buildIcon">📱</div>
-            </div>
-            <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.3rem;">Membuild APK...</h3>
-            <p style="color: var(--text-muted); font-size: 0.8rem;" id="buildStatus">Menyiapkan project...</p>
-
-            <div class="build-steps" id="buildSteps">
-                <div class="build-step active" data-step="0"><span class="step-icon">📋</span> Membuat AndroidManifest.xml</div>
-                <div class="build-step" data-step="1"><span class="step-icon">🌐</span> Membuat WebView Activity</div>
-                <div class="build-step" data-step="2"><span class="step-icon">🎨</span> Membuat Resources & Layout</div>
-                <div class="build-step" data-step="3"><span class="step-icon">📄</span> Membuat Build Config</div>
-                <div class="build-step" data-step="4"><span class="step-icon">🔧</span> Membuat Build Script</div>
-                <div class="build-step" data-step="5"><span class="step-icon">📦</span> Packaging APK</div>
-            </div>
-
-            <div class="progress-bar-container">                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="progress-text">
-                    <span id="progressPercent">0%</span>
-                    <span id="progressStep">Step 1/6</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Success Screen -->
-        <div class="success-screen" id="successScreen">
-            <div class="success-icon">✅</div>
-            <h3>APK Berhasil Dibuat!</h3>
-            <p>File APK Anda sudah siap di-download dan di-install</p>
-
-            <div class="phone-mini">
-                <div class="phone-screen-mini">
-                    <div class="phone-notch-mini"></div>
-                    <div class="phone-status-mini" id="successStatus" style="background: #6C5CE7;">
-                        <span>12:00</span><span>🔋 100%</span>
-                    </div>
-                    <div class="phone-app-mini">
-                        <div class="phone-app-icon-mini" id="successIcon" style="background: linear-gradient(135deg, #6C5CE7, #A29BFE);">🚀</div>
-                        <div class="phone-app-name-mini" id="successName">My Web App</div>
-                        <div class="phone-app-desc-mini">Tap to open</div>
+                    <div>
+                        <label>🏷️ Package Name <span class="req">*</span></label>
+                        <input type="text" id="packageName" placeholder="com.myapp.app" required value="com.myapp.app">
                     </div>
                 </div>
             </div>
 
-            <div class="file-info">
-                <div class="file-info-row">
-                    <span class="label">📱 App Name</span>
-                    <span class="value" id="infoAppName">-</span>
+            <!-- Appearance -->
+            <div class="card">
+                <h3><i class="fas fa-palette"></i> Tampilan Aplikasi</h3>
+                <div class="form-grid">
+                    <div>
+                        <label>🎨 Toolbar Color</label>
+                        <div class="color-group">
+                            <input type="color" id="toolbarColor" value="#6366f1">
+                            <input type="text" id="toolbarColorText" value="#6366f1">
+                        </div>
+                    </div>
+                    <div>
+                        <label>🔤 Toolbar Title Color</label>
+                        <div class="color-group">
+                            <input type="color" id="toolbarTitleColor" value="#ffffff">
+                            <input type="text" id="toolbarTitleColorText" value="#ffffff">
+                        </div>
+                    </div>
+                    <div class="full">
+                        <label class="toggle-row">
+                            <div class="toggle-label">
+                                <span class="title">📊 Tampilkan Toolbar</span>
+                                <span class="desc">Tampilkan address bar di atas WebView</span>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox" id="enableShowToolBar" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </label>
+                    </div>
                 </div>
-                <div class="file-info-row">
-                    <span class="label">📦 Package</span>
-                    <span class="value" id="infoPackage">-</span>
-                </div>
-                <div class="file-info-row">
-                    <span class="label">🔢 Version</span>
-                    <span class="value" id="infoVersion">-</span>
-                </div>
-                <div class="file-info-row">
-                    <span class="label">📐 Min SDK</span>
-                    <span class="value" id="infoSdk">-</span>
-                </div>
-                <div class="file-info-row">
-                    <span class="label">📏 Target SDK</span>
-                    <span class="value" id="infoTargetSdk">-</span>                </div>
             </div>
 
-            <div class="btn-group" style="justify-content: center; flex-direction: column; align-items: center;">
-                <button class="btn btn-success btn-lg" onclick="downloadAPK()">
-                    📥 DOWNLOAD APK FILE
-                </button>
-                <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;">
-                    ⚠️ File akan di-download sebagai <strong>ZIP</strong> yang berisi project APK.<br>
-                    Ekstrak lalu jalankan <code style="background: var(--bg-input); padding: 2px 6px; border-radius: 4px;">build.bat</code> (Windows) atau <code style="background: var(--bg-input); padding: 2px 6px; border-radius: 4px;">./build.sh</code> (Mac/Linux)
+            <!-- Icons -->
+            <div class="card">                <h3><i class="fas fa-image"></i> Icon & Splash Screen</h3>
+                <div class="icon-preview">
+                    <div class="preview-box">
+                        <div class="preview-placeholder" id="appIconPlaceholder">📱</div>
+                        <img id="appIconPreview" alt="App Icon Preview">
+                        <span>App Icon (512x512)</span>
+                        <input type="file" id="appIcon" accept="image/png,image/jpeg" style="display:none">
+                        <button type="button" class="btn" style="margin-top:8px;padding:8px;font-size:0.8rem" onclick="document.getElementById('appIcon').click()">📤 Upload</button>
+                    </div>
+                    <div class="preview-box">
+                        <div class="preview-placeholder" id="splashIconPlaceholder">✨</div>
+                        <img id="splashIconPreview" alt="Splash Preview">
+                        <span>Splash Screen</span>
+                        <input type="file" id="splashIcon" accept="image/png,image/jpeg" style="display:none">
+                        <button type="button" class="btn" style="margin-top:8px;padding:8px;font-size:0.8rem" onclick="document.getElementById('splashIcon').click()">📤 Upload</button>
+                    </div>
+                </div>
+                <p style="font-size:0.75rem;color:var(--text-muted);margin-top:12px">
+                    💡 Tips: Gunakan PNG transparan 512x512px untuk hasil terbaik. Jika tidak upload, ikon default akan digunakan.
                 </p>
             </div>
 
-            <div class="btn-group" style="justify-content: center; margin-top: 1rem;">
-                <button class="btn btn-secondary" onclick="resetBuilder()">🔄 Buat APK Baru</button>
+            <!-- Build Button -->
+            <button type="submit" class="btn btn-primary" id="buildBtn">
+                <i class="fas fa-rocket"></i> 🚀 BUILD APK SEKARANG
+            </button>
+        </form>
+
+        <!-- Progress -->
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress"></div>
             </div>
+            <div class="progress-text" id="progressText">Memulai proses...</div>
         </div>
 
-        <div class="footer">
-            <p>⚡ Web to APK Builder — Build Android APK langsung dari browser | 100% Client-Side</p>
-        </div>
+        <!-- Result -->
+        <div class="result" id="result"></div>
+
+        <footer>
+            <p>⚡ Powered by <a href="https://appmaker.xyz" target="_blank">AppMaker.xyz API</a> | 
+            <a href="#" onclick="showInfo()">ℹ️ Info & Privacy</a></p>
+        </footer>
     </div>
 
-    <div class="toast-container" id="toastContainer"></div>
-
     <script>
-        let selectedEmoji = '🚀';
-        let apkZipBlob = null;
+        // ========== API CONFIG ==========
+        const appmakerAPI = {
+            baseURL: 'https://standalone-app-api.appmaker.xyz/webapp',
+            defaultHeaders: {                'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36',
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Encoding': 'gzip, deflate, br, zstd',
+                'sec-ch-ua-platform': '"Android"',
+                'sec-ch-ua': '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
+                'dnt': '1',
+                'sec-ch-ua-mobile': '?1',
+                'origin': 'https://create.appmaker.xyz',
+                'sec-fetch-site': 'same-site',
+                'sec-fetch-mode': 'cors',
+                'sec-fetch-dest': 'empty',
+                'referer': 'https://create.appmaker.xyz/',
+                'accept-language': 'id,en-US;q=0.9,en;q=0.8',
+                'priority': 'u=1, i'
+            },
+            async createApp(url, email) {
+                const data = JSON.stringify({ url, email: email || 'user@example.com' });
+                const response = await axios.post(`${this.baseURL}/build`, data, {
+                    headers: { ...this.defaultHeaders, 'Content-Type': 'application/json' }
+                });
+                return response.data;
+            },
+            async uploadFile(file, appId) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('id', appId);
+                const response = await axios.post(`${this.baseURL}/build/file-upload`, formData, {
+                    headers: this.defaultHeaders
+                });
+                return response.data;
+            },
+            async buildApp(appConfig) {
+                const data = JSON.stringify(appConfig);
+                const response = await axios.post(`${this.baseURL}/build/build`, data, {
+                    headers: { ...this.defaultHeaders, 'Content-Type': 'application/json' }
+                });
+                return response.data;
+            },
+            async checkStatus(appId) {
+                const response = await axios.get(`${this.baseURL}/build/status?appId=${appId}`, {
+                    headers: { ...this.defaultHeaders }
+                });
+                return response.data;
+            },
+            async getDownloadUrl(appId) {
+                const response = await axios.get(`${this.baseURL}/complete/download?appId=${appId}`, {
+                    headers: this.defaultHeaders
+                });
+                return response.data;
+            }        };
 
-        function selectEmoji(btn, emoji) {
-            document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            selectedEmoji = emoji;
+        // ========== UI FUNCTIONS ==========
+        function syncColor(colorInput, textInput) {
+            colorInput.addEventListener('input', () => textInput.value = colorInput.value);
+            textInput.addEventListener('input', () => {
+                if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
+                    colorInput.value = textInput.value;
+                }
+            });
         }
 
-        function autoFill() {
-            const url = document.getElementById('siteUrl').value.trim();
-            if (!url) { showToast('Masukkan URL dulu!', 'error'); return; }
+        function previewIcon(input, previewImg, placeholder) {
+            input.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImg.src = e.target.result;
+                        previewImg.style.display = 'block';
+                        placeholder.style.display = 'none';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function showProgress(percent, text) {
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('progress').style.width = percent + '%';
+            document.getElementById('progressText').textContent = text;
+        }
+
+        function showResult(html, isSuccess) {
+            const result = document.getElementById('result');
+            result.className = `result ${isSuccess ? 'success' : 'error'}`;
+            result.innerHTML = html;
+            result.style.display = 'block';
+            result.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function downloadFile(url, filename) {
+            if (!url) { alert('URL download tidak tersedia'); return; }
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        function showInfo() {
+            alert(`📋 INFO & PRIVACY:
+
+🔹 Data yang dikirim ke AppMaker API:
+   - URL website Anda
+   - File icon & splash screen (jika diupload)
+   - Email (opsional, untuk notifikasi)
+
+🔹 Yang Anda dapatkan:
+   - File APK siap install
+   - File AAB (untuk Play Store)
+   - File .jks keystore + password
+
+⚠️ PENTING:
+   - Simpan informasi keystore dengan AMAN!
+   - Tanpa keystore, Anda TIDAK bisa update aplikasi
+   - Layanan ini gratis dengan batasan penggunaan
+
+🔗 Website: https://appmaker.xyz`);
+        }
+
+        // ========== MAIN BUILD FLOW ==========
+        async function buildApp(e) {
+            e.preventDefault();
+            const btn = document.getElementById('buildBtn');
+            btn.disabled = true;
+            document.getElementById('result').style.display = 'none';
+            
+            // Get form values
+            const config = {
+                url: document.getElementById('url').value,
+                email: document.getElementById('email').value || 'user@example.com',
+                appName: document.getElementById('appName').value,
+                packageName: document.getElementById('packageName').value,
+                toolbarColor: document.getElementById('toolbarColor').value,
+                toolbarTitleColor: document.getElementById('toolbarTitleColor').value,
+                enableShowToolBar: document.getElementById('enableShowToolBar').checked,
+                appIcon: document.getElementById('appIcon').files[0],
+                splashIcon: document.getElementById('splashIcon').files[0]
+            };
+
             try {
-                const u = url.startsWith('http') ? new URL(url) : new URL('https://' + url);
-                const domain = u.hostname.replace('www.', '');
-                const name = domain.split('.')[0];
-                const capName = name.charAt(0).toUpperCase() + name.slice(1);
-                document.getElementById('appName').value = capName + ' App';
-                document.getElementById('packageName').value = 'com.' + domain.replace(/\./g, '') + '.app';
-                document.getElementById('siteUrl').value = u.href.replace(/https?:\/\//, '');
-                showToast('✅ Auto-fill berhasil!', 'success');
-            } catch(e) { showToast('URL tidak valid!', 'error'); }
-        }
-        function showToast(msg, type='info') {
-            const c = document.getElementById('toastContainer');
-            const icons = { success: '✅', error: '❌', info: 'ℹ️' };
-            const t = document.createElement('div');
-            t.className = `toast ${type}`;
-            t.innerHTML = `<span class="toast-icon">${icons[type]}</span><span class="toast-msg">${msg}</span>`;
-            c.appendChild(t);
-            setTimeout(() => t.remove(), 3000);
-        }
+                // Step 1: Create App
+                showProgress(10, '🔄 Membuat project aplikasi...');
+                const createResult = await appmakerAPI.createApp(config.url, config.email);
+                const appId = createResult.body?.appId;
+                if (!appId) throw new Error('Gagal mendapatkan appId');
 
-        async function buildAPK() {
-            const url = document.getElementById('siteUrl').value.trim();
-            const appName = document.getElementById('appName').value.trim();
-            const packageName = document.getElementById('packageName').value.trim();
-            const versionCode = document.getElementById('versionCode').value;
-            const versionName = document.getElementById('versionName').value;
-            const description = document.getElementById('appDesc').value.trim();
-            const themeColor = document.getElementById('themeColor').value;
-            const bgColor = document.getElementById('bgColor').value;
-            const orientation = document.getElementById('orientation').value;
-            const minSdk = document.getElementById('minSdk').value;
-
-            if (!url) { showToast('Masukkan URL website!', 'error'); return; }
-            if (!appName) { showToast('Masukkan nama aplikasi!', 'error'); return; }
-            if (!packageName) { showToast('Masukkan package name!', 'error'); return; }
-            if (!packageName.includes('.')) { showToast('Package name harus format com.xxx.xxx', 'error'); return; }
-
-            const fullUrl = url.startsWith('http') ? url : 'https://' + url;
-            const offline = document.getElementById('offlineSupport').checked;
-            const pushNotif = document.getElementById('pushNotif').checked;
-            const geo = document.getElementById('geolocation').checked;
-            const cam = document.getElementById('camera').checked;
-            const storage = document.getElementById('storage').checked;
-
-            // Show progress
-            document.getElementById('configCard').style.display = 'none';
-            document.getElementById('successScreen').classList.remove('show');
-            document.getElementById('buildProgress').classList.add('show');
-
-            const steps = document.querySelectorAll('.build-step');
-            const progressFill = document.getElementById('progressFill');
-            const progressPercent = document.getElementById('progressPercent');
-            const progressStep = document.getElementById('progressStep');
-
-            // Step 0: AndroidManifest.xml
-            await runStep(0, 16, 'Membuat AndroidManifest.xml...', () => {
-                const permissions = [];
-                if (geo) permissions.push('    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />');
-                if (geo) permissions.push('    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />');
-                if (cam) permissions.push('    <uses-permission android:name="android.permission.CAMERA" />');                if (storage) permissions.push('    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />');
-                if (storage) permissions.push('    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />');
-                if (pushNotif) permissions.push('    <uses-permission android:name="android.permission.VIBRATE" />');
-                permissions.push('    <uses-permission android:name="android.permission.INTERNET" />');
-                permissions.push('    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />');
-
-                return `<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="${packageName}">
-
-${permissions.join('\n')}
-
-    <uses-feature android:name="android.hardware.camera" android:required="${cam ? 'true' : 'false'}" />
-
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="${appName}"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true"
-        android:networkSecurityConfig="@xml/network_security_config">
-
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:label="${appName}"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="${orientation}"
-            android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-    </application>
-</manifest>`;
-            });
-
-            // Step 1: MainActivity.java
-            await runStep(1, 32, 'Membuat WebView Activity...', () => {
-                const permissionChecks = [];
-                const permissionRequests = [];
-                let reqCode = 100;
-
-                if (geo) {
-                    permissionChecks.push(`            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, ${reqCode});
-            }`);                    reqCode++;
-                }
-                if (cam) {
-                    permissionChecks.push(`            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, ${reqCode});
-            }`);
-                    reqCode++;
-                }
-                if (storage) {
-                    permissionChecks.push(`            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, ${reqCode});
-            }`);
-                    reqCode++;
+                // Step 2: Upload App Icon                showProgress(30, '🖼️ Mengupload app icon...');
+                let appIconUrl = 'https://via.placeholder.com/512/6366f1/ffffff?text=APP';
+                if (config.appIcon) {
+                    const iconUpload = await appmakerAPI.uploadFile(config.appIcon, appId);
+                    appIconUrl = iconUpload.cloudStoragePublicUrl;
                 }
 
-                return `package ${packageName};
-
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.view.View;
-import android.webkit.GeolocationPermissions;
-import android.webkit.PermissionRequest;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.ProgressBar;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-public class MainActivity extends AppCompatActivity {
-
-    private WebView webView;
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private ProgressBar progressBar;
-    private static final String APP_URL = "${fullUrl}";
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        webView = findViewById(R.id.webView);
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
-        progressBar = findViewById(R.id.progressBar);
-        setupWebView();
-        requestAppPermissions();
-        loadUrl();
-
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            webView.reload();
-        });
-    }
-
-    private void setupWebView() {
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setDatabaseEnabled(true);
-        settings.setAllowFileAccess(true);
-        settings.setAllowContentAccess(true);
-        settings.setLoadWithOverviewMode(true);
-        settings.setUseWideViewPort(true);
-        settings.setBuiltInZoomControls(false);
-        settings.setDisplayZoomControls(false);
-        settings.setGeolocationEnabled(true);
-        settings.setMediaPlaybackRequiresUserGesture(false);
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-
-${offline ? `        // Offline cache support
-        settings.setAppCacheEnabled(true);
-        settings.setAppCachePath(getApplicationContext().getCacheDir().getAbsolutePath());` : ''}
-
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                swipeRefreshLayout.setRefreshing(false);
-                progressBar.setVisibility(View.GONE);
-            }
-        });
-
-        webView.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public void onProgressChanged(WebView view, int newProgress) {
-                progressBar.setProgress(newProgress);
-                if (newProgress == 100) {
-                    progressBar.setVisibility(View.GONE);
-                } else {
-                    progressBar.setVisibility(View.VISIBLE);
+                // Step 3: Upload Splash Icon
+                showProgress(50, '✨ Mengupload splash screen...');
+                let splashIconUrl = 'https://via.placeholder.com/512/6366f1/ffffff?text=SPLASH';
+                if (config.splashIcon) {
+                    const splashUpload = await appmakerAPI.uploadFile(config.splashIcon, appId);
+                    splashIconUrl = splashUpload.cloudStoragePublicUrl;
                 }
-            }
 
-            @Override
-            public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {                callback.invoke(origin, true, false);
-            }
+                // Step 4: Build App
+                showProgress(70, '🔨 Membangun aplikasi (ini bisa memakan waktu 2-5 menit)...');
+                const appConfig = {
+                    appId: appId,
+                    appIcon: appIconUrl,
+                    appName: config.appName,
+                    isPaymentInProgress: false,
+                    enableShowToolBar: config.enableShowToolBar,
+                    toolbarColor: config.toolbarColor,
+                    toolbarTitleColor: config.toolbarTitleColor,
+                    splashIcon: splashIconUrl,
+                    packageName: config.packageName
+                };
+                await appmakerAPI.buildApp(appConfig);
 
-            @Override
-            public void onPermissionRequest(PermissionRequest request) {
-                request.grant(request.getResources());
-            }
-        });
-    }
+                // Step 5: Poll Status
+                showProgress(80, '⏳ Menunggu build selesai...');
+                let status, attempts = 0, maxAttempts = 40;
+                
+                do {
+                    await new Promise(resolve => setTimeout(resolve, 8000));
+                    status = await appmakerAPI.checkStatus(appId);
+                    attempts++;
+                    const pct = Math.min(95, 80 + (attempts * 0.4));
+                    showProgress(pct, `⏳ Build progress... (${attempts}/${maxAttempts}) - Status: ${status.body?.status || 'unknown'}`);
+                    
+                    if (status.body?.status === 'success') break;
+                    if (status.body?.status === 'failed') throw new Error('❌ Build gagal di server');
+                } while (attempts < maxAttempts);
 
-    private void loadUrl() {
-        webView.loadUrl(APP_URL);
-    }
+                if (attempts >= maxAttempts) {
+                    throw new Error('⏰ Timeout: Build terlalu lama. Coba lagi nanti.');
+                }
 
-    private void requestAppPermissions() {
-${permissionChecks.length > 0 ? permissionChecks.join('\n') : '        // No special permissions needed'}
-    }
+                // Step 6: Get Download URLs                showProgress(100, '✅ Selesai! Menyiapkan download...');
+                const downloadInfo = await appmakerAPI.getDownloadUrl(appId);
+                const body = downloadInfo.body;
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        // Permission results handled
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack();
-        } else {
-            super.onBackPressed();
-        }
-    }
-}`;
-            });
-
-            // Step 2: Layout & Resources
-            await runStep(2, 48, 'Membuat Resources & Layout...', () => {
-                // We'll return a special marker for multiple files
-                return { type: 'multi', step: 2 };
-            });
-
-            // Step 3: Build config
-            await runStep(3, 64, 'Membuat Build Config...', () => {
-                return { type: 'multi', step: 3 };
-            });
-
-            // Step 4: Build script
-            await runStep(4, 80, 'Membuat Build Script...', () => {
-                return { type: 'multi', step: 4 };
-            });
-            // Step 5: Package
-            await runStep(5, 100, 'Packaging APK Project...', () => {
-                return { type: 'multi', step: 5 };
-            });
-
-            // Build ZIP
-            await createAPKZip({
-                appName, packageName, versionCode, versionName, description,
-                fullUrl, themeColor, bgColor, orientation, minSdk,
-                offline, pushNotif, geo, cam, storage
-            });
-
-            // Show success
-            setTimeout(() => {
-                document.getElementById('buildProgress').classList.remove('show');
-                document.getElementById('successScreen').classList.add('show');
-
-                document.getElementById('successName').textContent = appName;
-                document.getElementById('successIcon').textContent = selectedEmoji;
-                document.getElementById('successIcon').style.background = `linear-gradient(135deg, ${themeColor}, ${themeColor}CC)`;
-                document.getElementById('successStatus').style.background = themeColor;
-
-                document.getElementById('infoAppName').textContent = appName;
-                document.getElementById('infoPackage').textContent = packageName;
-                document.getElementById('infoVersion').textContent = versionName + ' (' + versionCode + ')';
-                document.getElementById('infoSdk').textContent = 'API ' + minSdk;
-                document.getElementById('infoTargetSdk').textContent = 'API 33 (Android 13)';
-
-                showToast('🎉 APK Project berhasil dibuat!', 'success');
-            }, 800);
-        }
-
-        function runStep(index, progress, status, fn) {
-            return new Promise(resolve => {
+                // Show Success Result
                 setTimeout(() => {
-                    document.getElementById('buildStatus').textContent = status;
-                    const steps = document.querySelectorAll('.build-step');
-                    steps.forEach((s, i) => {
-                        if (i < index) { s.className = 'build-step done'; s.querySelector('.step-icon').textContent = '✅'; }
-                        else if (i === index) { s.className = 'build-step active'; }
-                        else { s.className = 'build-step'; }
-                    });
-                    document.getElementById('progressFill').style.width = progress + '%';
-                    document.getElementById('progressPercent').textContent = progress + '%';
-                    document.getElementById('progressStep').textContent = `Step ${index + 1}/6`;
-                    resolve(fn());
-                }, 600);
+                    showResult(`
+                        <h3><i class="fas fa-check-circle"></i> 🎉 Aplikasi Berhasil Dibuat!</h3>
+                        <p><strong>"${body.appName}"</strong> siap diunduh dan diinstall di perangkat Android Anda.</p>
+                        
+                        <div class="key-info">
+                            <h4><i class="fas fa-key"></i> ⚠️ SIMPAN INFORMASI KEYSTORE INI!</h4>
+                            <p><strong>Store Password:</strong> <code>${body.storePass}</code></p>
+                            <p><strong>Key Password:</strong> <code>${body.keyPass}</code></p>
+                            <p><strong>Key SHA:</strong> <code>${body.keySha}</code></p>
+                            <p style="margin-top:8px;font-size:0.75rem;color:var(--text-muted)">
+                                🔐 Tanpa keystore ini, Anda <strong>tidak bisa update</strong> aplikasi di Play Store!
+                            </p>
+                        </div>
+                        
+                        <div class="download-btns">
+                            <button class="download-btn apk" onclick="downloadFile('${body.buildFile}', '${body.appName}.apk')">
+                                <i class="fas fa-download"></i> Download APK
+                            </button>
+                            <button class="download-btn aab" onclick="downloadFile('${body.aabFile}', '${body.appName}.aab')">
+                                <i class="fas fa-box"></i> Download AAB
+                            </button>
+                            <button class="download-btn key" onclick="downloadFile('${body.keyFile}', '${body.appName}.jks')">
+                                <i class="fas fa-key"></i> Download Keystore
+                            </button>
+                        </div>
+                        
+                        <p style="margin-top:16px;font-size:0.85rem;color:var(--text-muted)">
+                            📱 <strong>Cara Install:</strong> Transfer APK ke HP → Buka File Manager → Tap file APK → Izinkan "Install from unknown sources" → Install.
+                        </p>
+                    `, true);
+                }, 500);
+
+            } catch (error) {
+                console.error('Build error:', error);
+                showResult(`
+                    <h3><i class="fas fa-exclamation-triangle"></i> ❌ Terjadi Kesalahan</h3>
+                    <p><strong>${error.message || 'Proses build gagal'}</strong></p>
+                    <p style="margin-top:10px;font-size:0.9rem">
+                        Kemungkinan penyebab:<br>
+                        • URL website tidak dapat diakses<br>
+                        • Server API sedang maintenance<br>
+                        • Package name sudah digunakan<br>
+                        • File icon terlalu besar (>5MB)
+                    </p>                    <button class="btn" onclick="location.reload()" style="margin-top:15px;background:var(--card);border:1px solid var(--border);color:var(--text)">
+                        <i class="fas fa-redo"></i> Coba Lagi
+                    </button>
+                `, false);
+            } finally {
+                btn.disabled = false;
+                setTimeout(() => {
+                    document.getElementById('progressContainer').style.display = 'none';
+                }, 2000);
+            }
+        }
+
+        // ========== INIT ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            // Particles.js
+            if (typeof particlesJS !== 'undefined') {
+                particlesJS('particles-js', {
+                    particles: {
+                        number: { value: window.innerWidth < 768 ? 40 : 80, density: { enable: true, value_area: 800 } },
+                        color: { value: '#ffffff' },
+                        shape: { type: 'circle' },
+                        opacity: { value: 0.4, random: true },
+                        size: { value: 2.5, random: true },
+                        line_linked: { enable: true, distance: 140, color: '#ffffff', opacity: 0.3, width: 1 },
+                        move: { enable: true, speed: 1.5, direction: 'none', random: false, straight: false, out_mode: 'out' }
+                    },
+                    interactivity: {
+                        detect_on: 'canvas',
+                        events: { onhover: { enable: true, mode: 'grab' }, onclick: { enable: true, mode: 'push' }, resize: true },
+                        modes: { grab: { distance: 180, line_linked: { opacity: 0.6 } }, push: { particles_nb: 3 } }
+                    },
+                    retina_detect: true
+                });
+            }
+
+            // Theme Toggle
+            const themeSwitch = document.getElementById('themeSwitch');
+            const themeIcon = themeSwitch.querySelector('i');
+            if (localStorage.getItem('theme') === 'dark' || 
+                (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.body.classList.add('dark-mode');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+            }
+            themeSwitch.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                themeIcon.classList.replace(isDark ? 'fa-moon' : 'fa-sun', isDark ? 'fa-sun' : 'fa-moon');
             });
-        }
-        async function createAPKZip(config) {
-            const zip = new JSZip();
-            const { appName, packageName, versionCode, versionName, description,
-                    fullUrl, themeColor, bgColor, orientation, minSdk,
-                    offline, pushNotif, geo, cam, storage } = config;
-
-            const pkgPath = packageName.replace(/\./g, '/');
-
-            // Generate the AndroidManifest.xml
-            const permissions = [];
-            if (geo) permissions.push('<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />');
-            if (geo) permissions.push('<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />');
-            if (cam) permissions.push('<uses-permission android:name="android.permission.CAMERA" />');
-            if (storage) permissions.push('<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />');
-            if (storage) permissions.push('<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />');
-            if (pushNotif) permissions.push('<uses-permission android:name="android.permission.VIBRATE" />');
-            permissions.push('<uses-permission android:name="android.permission.INTERNET" />');
-            permissions.push('<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />');
-
-            const manifestContent = `<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="${packageName}">
-
-${permissions.map(p => '    ' + p).join('\n')}
-
-    <uses-feature android:name="android.hardware.camera" android:required="${cam ? 'true' : 'false'}" />
-
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="${appName}"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true"
-        android:networkSecurityConfig="@xml/network_security_config">
-
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:label="${appName}"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="${orientation}"
-            android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-    </application>
-</manifest>`;
-
-            // MainActivity.java
-            const permissionChecks = [];
-            let reqCode = 100;
-            if (geo) { permissionChecks.push(`        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, ${reqCode});
-        }`); reqCode++; }
-            if (cam) { permissionChecks.push(`        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, ${reqCode});
-        }`); reqCode++; }
-            if (storage) { permissionChecks.push(`        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, ${reqCode});
-        }`); reqCode++; }
-
-            const mainActivityContent = `package ${packageName};
-
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.View;
-import android.webkit.GeolocationPermissions;
-import android.webkit.PermissionRequest;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.ProgressBar;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-public class MainActivity extends AppCompatActivity {
-
-    private WebView webView;
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private ProgressBar progressBar;
-    private static final String APP_URL = "${fullUrl}";
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        webView = findViewById(R.id.webView);
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);        progressBar = findViewById(R.id.progressBar);
-
-        setupWebView();
-        requestAppPermissions();
-        loadUrl();
-
-        swipeRefreshLayout.setOnRefreshListener(() -> webView.reload());
-    }
-
-    private void setupWebView() {
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setDatabaseEnabled(true);
-        settings.setAllowFileAccess(true);
-        settings.setAllowContentAccess(true);
-        settings.setLoadWithOverviewMode(true);
-        settings.setUseWideViewPort(true);
-        settings.setBuiltInZoomControls(false);
-        settings.setDisplayZoomControls(false);
-        settings.setGeolocationEnabled(true);
-        settings.setMediaPlaybackRequiresUserGesture(false);
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-${offline ? `        settings.setAppCacheEnabled(true);
-        settings.setAppCachePath(getApplicationContext().getCacheDir().getAbsolutePath());` : ''}
-
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                swipeRefreshLayout.setRefreshing(false);
-                progressBar.setVisibility(View.GONE);
-            }
-
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
-                return true;
-            }
-        });
-
-        webView.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public void onProgressChanged(WebView view, int newProgress) {
-                progressBar.setProgress(newProgress);
-                progressBar.setVisibility(newProgress == 100 ? View.GONE : View.VISIBLE);
-            }
-
-            @Override
-            public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {                callback.invoke(origin, true, false);
-            }
-
-            @Override
-            public void onPermissionRequest(PermissionRequest request) {
-                request.grant(request.getResources());
-            }
-        });
-    }
-
-    private void loadUrl() {
-        webView.loadUrl(APP_URL);
-    }
-
-    private void requestAppPermissions() {
-${permissionChecks.length > 0 ? permissionChecks.join('\n') : '        // No special permissions needed'}
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && webView.canGoBack()) {
-            webView.goBack();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-}`;
-
-            // Layout XML
-            const activityMainXml = `<?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/swipeRefreshLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <WebView
-            android:id="@+id/webView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="3dp"
-            android:layout_gravity="top"
-            android:progressTint="${themeColor}"
-            android:visibility="gone" />
-
-    </FrameLayout>
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>`;
-
-            // Colors
-            const colorsXml = `<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="colorPrimary">${themeColor}</color>
-    <color name="colorPrimaryDark">${themeColor}</color>
-    <color name="colorAccent">${themeColor}</color>
-    <color name="colorBackground">${bgColor}</color>
-</resources>`;
-
-            // Styles
-            const stylesXml = `<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowBackground">@color/colorBackground</item>
-    </style>
-
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
-    </style>
-</resources>`;
-
-            // Strings
-            const stringsXml = `<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">${appName}</string>
-</resources>`;
-
-            // Network Security Config
-            const networkSecurityXml = `<?xml version="1.0" encoding="utf-8"?>
-<network-security-config>
-    <base-config cleartextTrafficPermitted="true">
-        <trust-anchors>
-            <certificates src="system" />            <certificates src="user" />
-        </trust-anchors>
-    </base-config>
-</network-security-config>`;
-
-            // Build.gradle (project)
-            const buildGradleProject = `// Top-level build file
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.0'
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}`;
-
-            // Build.gradle (app)
-            const buildGradleApp = `plugins {
-    id 'com.android.application'
-}
-
-android {
-    namespace '${packageName}'
-    compileSdk 33
-
-    defaultConfig {
-        applicationId "${packageName}"
-        minSdk ${minSdk}
-        targetSdk 33
-        versionCode ${versionCode}
-        versionName "${versionName}"
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }        debug {
-            minifyEnabled false
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-}
-
-dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-    implementation 'com.google.android.material:material:1.9.0'
-}`;
-
-            // settings.gradle
-            const settingsGradle = `pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-rootProject.name = "${appName}"
-include ':app'`;
-
-            // gradle.properties
-            const gradleProperties = `org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
-android.useAndroidX=true
-android.enableJetifier=true`;
-
-            // proguard-rules.pro
-            const proguardRules = `# Add project specific ProGuard rules here.
--keepattributes *Annotation*
--keepclassmembers class * {
-    @android.webkit.JavascriptInterface <methods>;
-}`;
-
-            // Generate SVG icon from emoji
-            const svgIcon = `<?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path
-        android:fillColor="${themeColor}"
-        android:pathData="M0,0h108v108h-108z"/>
-    <text
-        x="54"
-        y="68"
-        font-size="60"
-        text-anchor="middle"
-        fill="white">📱</text>
-</vector>`;
-
-            // ADAPTIVE ICON
-            const icLauncherXml = `<?xml version="1.0" encoding="utf-8"?>
-<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/colorPrimary"/>
-    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
-</adaptive-icon>`;
-
-            // README
-            const readme = `# ${appName} - Android APK Project
-
-## 📱 App Info
-- **Name:** ${appName}
-- **Package:** ${packageName}
-- **Version:** ${versionName} (${versionCode})
-- **URL:** ${fullUrl}
-- **Min SDK:** API ${minSdk}
-- **Target SDK:** API 33
-
-## 🚀 Cara Build APK
-
-### Windows:
-1. Install [Android Studio](https://developer.android.com/studio)
-2. Buka Android Studio → Open → pilih folder ini
-3. Tunggu Gradle sync selesai
-4. Menu: **Build → Build Bundle(s) / APK(s) → Build APK(s)**
-5. APK ada di: \`app/build/outputs/apk/debug/app-debug.apk\`
-
-### Mac/Linux:
-1. Install Android Studio
-2. Buka project ini
-3. **Build → Build Bundle(s) / APK(s) → Build APK(s)**
-
-### Via Command Line (jika SDK sudah terinstall):
-\`\`\`bash
-./gradlew assembleDebug# APK: app/build/outputs/apk/debug/app-debug.apk
-\`\`\`
-
-## 📲 Install APK
-1. Transfer APK ke HP Android
-2. Buka file APK di File Manager
-3. Izinkan install dari sumber tidak dikenal
-4. Tap Install
-
-## ✨ Fitur
-${offline ? '- ✅ Offline Support (caching)' : ''}
-${pushNotif ? '- ✅ Push Notification' : ''}
-${geo ? '- ✅ Geolocation' : ''}
-${cam ? '- ✅ Camera Access' : ''}
-${storage ? '- ✅ Storage Access' : ''}
-
----
-Generated by Web to APK Builder ⚡`;
-
-            // Build script for Windows
-            const buildBat = `@echo off
-echo ============================================
-echo    Building ${appName} APK...
-echo ============================================
-echo.
-
-if not exist "local.properties" (
-    echo ERROR: local.properties tidak ditemukan!
-    echo Buka project ini di Android Studio terlebih dahulu.
-    pause
-    exit /b 1
-)
-
-call gradlew.bat assembleDebug
-
-if %errorlevel% equ 0 (
-    echo.
-    echo ============================================
-    echo    BUILD SUCCESS! ✅
-    echo ============================================
-    echo.
-    echo APK location:
-    echo   app\\build\\outputs\\apk\\debug\\app-debug.apk
-    echo.
-    echo Transfer ke HP Android dan install!
-    echo ============================================
-) else (
-    echo.
-    echo ============================================
-    echo    BUILD FAILED ❌    echo ============================================
-    echo Pastikan Android Studio & SDK sudah terinstall.
-)
-pause`;
-
-            // Build script for Mac/Linux
-            const buildSh = `#!/bin/bash
-echo "============================================"
-echo "   Building ${appName} APK..."
-echo "============================================"
-echo ""
-
-if [ ! -f "local.properties" ]; then
-    echo "ERROR: local.properties not found!"
-    echo "Open this project in Android Studio first."
-    exit 1
-fi
-
-chmod +x ./gradlew
-./gradlew assembleDebug
-
-if [ $? -eq 0 ]; then
-    echo ""
-    echo "============================================"
-    echo "   BUILD SUCCESS! ✅"
-    echo "============================================"
-    echo ""
-    echo "APK location:"
-    echo "  app/build/outputs/apk/debug/app-debug.apk"
-    echo ""
-    echo "Transfer to Android phone and install!"
-    echo "============================================"
-else
-    echo ""
-    echo "============================================"
-    echo "   BUILD FAILED ❌"
-    echo "============================================"
-    echo "Make sure Android Studio & SDK are installed."
-fi`;
-
-            // ==================== ADD ALL FILES TO ZIP ====================
-
-            // AndroidManifest.xml
-            zip.file('app/src/main/AndroidManifest.xml', manifestContent);
-
-            // MainActivity.java
-            zip.file(`app/src/main/java/${pkgPath}/MainActivity.java`, mainActivityContent);
-
-            // Layout
-            zip.file('app/src/main/res/layout/activity_main.xml', activityMainXml);
-            // Values
-            zip.file('app/src/main/res/values/colors.xml', colorsXml);
-            zip.file('app/src/main/res/values/strings.xml', stringsXml);
-            zip.file('app/src/main/res/values/styles.xml', stylesXml);
-
-            // XML resources
-            zip.file('app/src/main/res/xml/network_security_config.xml', networkSecurityXml);
-
-            // Mipmap (icon)
-            zip.file('app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml', icLauncherXml);
-
-            // Build files
-            zip.file('build.gradle', buildGradleProject);
-            zip.file('app/build.gradle', buildGradleApp);
-            zip.file('settings.gradle', settingsGradle);
-            zip.file('gradle.properties', gradleProperties);
-            zip.file('app/proguard-rules.pro', proguardRules);
-
-            // Build scripts
-            zip.file('build.bat', buildBat);
-            zip.file('build.sh', buildSh);
-
-            // README
-            zip.file('README.md', readme);
-
-            // Create the APK filename
-            const safeName = appName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-            const apkFilename = `${safeName}_v${versionName}.zip`;
-
-            // Generate ZIP
-            const content = await zip.generateAsync({ type: 'blob' });
-            apkZipBlob = new Blob([content], { type: 'application/zip' });
-
-            // Store filename for download
-            window._apkFilename = apkFilename;
-        }
-
-        function downloadAPK() {
-            if (!apkZipBlob) {
-                showToast('Build APK terlebih dahulu!', 'error');
-                return;
-            }
-
-            const url = URL.createObjectURL(apkZipBlob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = window._apkFilename || 'webapp_project.zip';
-            document.body.appendChild(a);
-            a.click();            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            showToast('📥 APK Project berhasil di-download!', 'success');
-        }
-
-        function resetBuilder() {
-            document.getElementById('configCard').style.display = 'block';
-            document.getElementById('successScreen').classList.remove('show');
-            document.getElementById('buildProgress').classList.remove('show');
-            apkZipBlob = null;
-
-            // Reset steps
-            document.querySelectorAll('.build-step').forEach((s, i) => {
-                s.className = 'build-step';
-                s.querySelector('.step-icon').textContent = ['📋', '🌐', '🎨', '📄', '🔧', '📦'][i];
+            // Color Sync
+            syncColor(document.getElementById('toolbarColor'), document.getElementById('toolbarColorText'));
+            syncColor(document.getElementById('toolbarTitleColor'), document.getElementById('toolbarTitleColorText'));
+
+            // Icon Preview
+            previewIcon(document.getElementById('appIcon'), document.getElementById('appIconPreview'), document.getElementById('appIconPlaceholder'));
+            previewIcon(document.getElementById('splashIcon'), document.getElementById('splashIconPreview'), document.getElementById('splashIconPlaceholder'));
+
+            // Form Submit
+            document.getElementById('appForm').addEventListener('submit', buildApp);
+
+            // Auto-fill package name from app name
+            document.getElementById('appName').addEventListener('blur', function() {
+                const pkg = document.getElementById('packageName');
+                if (!pkg.value || pkg.value === 'com.myapp.app') {
+                    const name = this.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    pkg.value = `com.${name || 'myapp'}.app`;
+                }
             });
-            document.getElementById('progressFill').style.width = '0%';
-        }
+        });
     </script>
 </body>
 </html>
