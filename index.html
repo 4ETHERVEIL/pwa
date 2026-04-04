@@ -3,510 +3,456 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Fast APK Builder - AppMaker API</title>
+    <title>⚡ Smart APK Builder - Auto Retry</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #6366f1; --primary-dark: #4f46e5; --secondary: #10b981;
-            --accent: #f59e0b; --bg: #0b0f19; --card: #111827; --card-hover: #1f2937;
-            --text: #f9fafb; --text-muted: #9ca3af; --border: #1f2937; --error: #ef4444;
-            --gradient: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
-            --shadow: 0 10px 40px rgba(0,0,0,0.3); --shadow-glow: 0 0 30px rgba(99,102,241,0.2);
-            --speed: 0.2s;
+            --primary: #6366f1; --secondary: #10b981; --accent: #f59e0b;
+            --bg: #0b0f19; --card: #111827; --text: #f9fafb; --text-muted: #9ca3af;
+            --border: #1f2937; --error: #ef4444; --warning: #f59e0b;
+            --gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: var(--bg); color: var(--text); min-height: 100vh;
-            overflow-x: hidden; line-height: 1.6;
+            font-family: 'Inter', system-ui, sans-serif; background: var(--bg);
+            color: var(--text); min-height: 100vh; line-height: 1.6;
         }
-        #particles-js {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; pointer-events: none;
-        }
-        .container { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 20px; }
+        #particles-js { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .container { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; padding: 20px; }
         
-        /* Header */
-        header { text-align: center; padding: 40px 20px 30px; }
+        header { text-align: center; padding: 30px 20px; }
         .badge {
             display: inline-flex; align-items: center; gap: 6px;
             background: rgba(16,185,129,0.15); color: var(--secondary);
             padding: 6px 14px; border-radius: 50px; font-size: 0.75rem;
-            font-weight: 600; margin-bottom: 15px; border: 1px solid rgba(16,185,129,0.3);
+            font-weight: 600; margin-bottom: 15px;
         }
-        .badge i { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:0.4 } }
-        
         h1 {
-            font-size: 2.5rem; font-weight: 800; margin-bottom: 10px;
+            font-size: 2rem; font-weight: 800; margin-bottom: 10px;
             background: var(--gradient); -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent; background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        header p { color: var(--text-muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto; }
-        .speed-tag {
-            display: inline-block; background: var(--accent); color: #451a03;
-            padding: 3px 10px; border-radius: 6px; font-size: 0.7rem;            font-weight: 700; margin-left: 8px; animation: bounce 2s infinite;
-        }
-        @keyframes bounce { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-3px) } }
         
-        /* Theme Toggle */
-        .theme-toggle {
-            position: fixed; top: 20px; right: 20px; z-index: 100;
-            width: 44px; height: 44px; border-radius: 12px;
-            background: var(--card); border: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: var(--speed); color: var(--text-muted);
-        }
-        .theme-toggle:hover { background: var(--card-hover); color: var(--primary); border-color: var(--primary); transform: rotate(15deg); }
-        
-        /* Cards */
         .card {
             background: var(--card); border: 1px solid var(--border);
-            border-radius: 16px; padding: 24px; margin-bottom: 20px;
-            transition: var(--speed); box-shadow: var(--shadow);
+            border-radius: 16px; padding: 20px; margin-bottom: 16px;
         }
-        .card:hover { border-color: rgba(99,102,241,0.4); box-shadow: var(--shadow-glow); transform: translateY(-2px); }
-        .card h3 {
-            color: var(--primary); margin-bottom: 18px; display: flex;
-            align-items: center; gap: 10px; font-size: 1.1rem; font-weight: 700;
-        }
-        .card h3 i { 
-            width: 28px; height: 28px; border-radius: 8px; 
-            background: rgba(99,102,241,0.15); display: flex; 
-            align-items: center; justify-content: center; font-size: 0.9rem; 
-        }
+        .card h3 { color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
         
-        /* Form */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .full { grid-column: 1 / -1; }
-        label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; font-weight: 500; }
-        label .req { color: var(--error); margin-left: 2px; }
+        label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; }
+        label .req { color: var(--error); }
         input, select {
-            width: 100%; padding: 11px 14px; background: #0f172a;
-            border: 1px solid var(--border); color: var(--text);
-            border-radius: 10px; font-size: 0.9rem; transition: var(--speed);
+            width: 100%; padding: 10px; background: #0f172a;
+            border: 1px solid var(--border); color: var(--text);            border-radius: 8px; font-size: 0.9rem;
         }
-        input:focus, select:focus {
-            outline: none; border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
-        }
-        input::placeholder { color: var(--text-muted); }
+        input:focus { outline: none; border-color: var(--primary); }
         
-        /* Color Picker */
-        .color-group { display: flex; align-items: center; gap: 10px; }
-        .color-group input[type="color"] {            width: 44px; height: 44px; padding: 3px; border-radius: 10px;
-            cursor: pointer; border: 1px solid var(--border); background: transparent;
+        .mode-selector {
+            display: flex; gap: 10px; margin-bottom: 15px;
         }
-        .color-group input[type="text"] { flex: 1; font-family: monospace; }
+        .mode-btn {
+            flex: 1; padding: 12px; border: 2px solid var(--border);
+            background: var(--card); color: var(--text);
+            border-radius: 10px; cursor: pointer;
+            transition: all 0.2s; font-weight: 600;
+        }
+        .mode-btn.active {
+            border-color: var(--primary);
+            background: rgba(99,102,241,0.1);
+            color: var(--primary);
+        }
+        .mode-btn .desc { font-size: 0.7rem; opacity: 0.7; margin-top: 4px; }
         
-        /* Icon Preview */
-        .icon-preview {
-            display: flex; gap: 20px; align-items: center; margin-top: 10px; flex-wrap: wrap;
-        }
-        .preview-box {
-            text-align: center; background: #0f172a; padding: 12px;
-            border-radius: 12px; border: 1px solid var(--border);
-            transition: var(--speed);
-        }
-        .preview-box:hover { border-color: var(--primary); }
-        .preview-box img {
-            width: 80px; height: 80px; border-radius: 16px;
-            object-fit: contain; background: var(--card);
-            display: none; margin-bottom: 8px; transition: var(--speed);
-        }
-        .preview-box span { font-size: 0.7rem; color: var(--text-muted); }
-        .preview-placeholder {
-            width: 80px; height: 80px; border-radius: 16px;
-            background: var(--gradient); display: flex;
-            align-items: center; justify-content: center;
-            font-size: 2rem; margin-bottom: 8px; animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-5px) } }
-        
-        /* Toggle */
-        .toggle-row {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 10px 0; border-bottom: 1px solid rgba(31,41,55,0.5);
-        }
-        .toggle-row:last-child { border-bottom: none; }
-        .toggle-label .title { font-size: 0.85rem; font-weight: 600; }
-        .toggle-label .desc { font-size: 0.7rem; color: var(--text-muted); }
-        .toggle { position: relative; width: 48px; height: 26px; }
-        .toggle input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background: #0f172a; border: 1px solid var(--border);
-            border-radius: 26px; transition: var(--speed);
-        }
-        .toggle-slider::before {
-            content: ''; position: absolute; width: 20px; height: 20px;
-            left: 2px; bottom: 2px; background: var(--text-muted);
-            border-radius: 50%; transition: var(--speed);
-        }
-        .toggle input:checked + .toggle-slider { background: var(--primary); border-color: var(--primary); }        .toggle input:checked + .toggle-slider::before { transform: translateX(22px); background: white; }
-        
-        /* Buttons */
         .btn {
-            width: 100%; padding: 14px 20px; border: none; border-radius: 12px;
-            font-weight: 700; cursor: pointer; transition: var(--speed);
+            width: 100%; padding: 14px; border: none; border-radius: 12px;
+            font-weight: 700; cursor: pointer; transition: all 0.2s;
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            font-size: 0.95rem; position: relative; overflow: hidden;
+            font-size: 0.95rem;
         }
-        .btn::after {
-            content: ''; position: absolute; top: 0; left: -100%;
-            width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-        .btn:hover::after { left: 100%; }
         .btn-primary {
             background: var(--gradient); color: white;
-            box-shadow: var(--shadow-glow);
+            box-shadow: 0 4px 15px rgba(99,102,241,0.3);
         }
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px); box-shadow: 0 15px 50px rgba(99,102,241,0.4);
-        }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
         
-        /* FAST MODE Progress */
         .progress-container {
             display: none; margin-top: 20px; padding: 20px;
-            background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2);
-            border-radius: 12px; animation: slideDown var(--speed);
+            background: rgba(99,102,241,0.05); border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 12px;
         }
-        @keyframes slideDown { from { opacity:0; transform:translateY(-10px) } to { opacity:1; transform:translateY(0) } }
-        
         .progress-bar {
-            width: 100%; height: 10px; background: #0f172a;
-            border-radius: 10px; overflow: hidden; margin-bottom: 12px;
-            position: relative;
+            width: 100%; height: 8px; background: #0f172a;
+            border-radius: 8px; overflow: hidden; margin-bottom: 10px;
         }
         .progress-fill {
-            height: 100%; background: var(--gradient); border-radius: 10px;
-            transition: width 0.3s ease; width: 0%; position: relative;
+            height: 100%; background: var(--gradient);
+            transition: width 0.3s ease; width: 0%;
         }
-        .progress-fill::after {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 1.5s infinite;
-        }
-        @keyframes shimmer { 0% { transform: translateX(-100%) } 100% { transform: translateX(100%) } }
+        .progress-text { font-size: 0.8rem; color: var(--text-muted); text-align: center; }
         
-        .progress-text {
-            font-size: 0.8rem; color: var(--text-muted); text-align: center;            font-weight: 500;
+        .status-box {
+            background: #0f172a; border-radius: 8px; padding: 12px;            margin-top: 12px; font-size: 0.8rem;
         }
-        .progress-text.fast { color: var(--secondary); animation: pulseText 1s infinite; }
-        @keyframes pulseText { 0%,100% { opacity:1 } 50% { opacity:0.7 } }
+        .status-item {
+            display: flex; justify-content: space-between;
+            padding: 6px 0; border-bottom: 1px solid var(--border);
+        }
+        .status-item:last-child { border-bottom: none; }
+        .status-item.waiting { color: var(--warning); }
+        .status-item.success { color: var(--secondary); }
+        .status-item.error { color: var(--error); }
         
-        .step-indicator {
-            display: flex; justify-content: space-between; margin-top: 15px;
-            font-size: 0.7rem; color: var(--text-muted);
-        }
-        .step {
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            flex: 1; position: relative;
-        }
-        .step::before {
-            content: ''; position: absolute; top: 10px; left: 50%; right: 50%;
-            height: 2px; background: var(--border); transition: var(--speed);
-        }
-        .step.active::before { background: var(--primary); }
-        .step.done::before { background: var(--secondary); }
-        .step-dot {
-            width: 20px; height: 20px; border-radius: 50%;
-            background: var(--border); border: 2px solid var(--border);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.6rem; transition: var(--speed);
-        }
-        .step.active .step-dot {
-            background: var(--primary); border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(99,102,241,0.5);
-            animation: bounce 1s infinite;
-        }
-        .step.done .step-dot {
-            background: var(--secondary); border-color: var(--secondary);
-        }
-        .step.done .step-dot::after { content: '✓'; color: white; font-size: 0.7rem; }
-        
-        /* Result */
         .result {
-            display: none; margin-top: 20px; padding: 24px;
-            border-radius: 16px; animation: slideUp 0.3s ease;
+            display: none; margin-top: 20px; padding: 20px;
+            border-radius: 12px; animation: slideUp 0.3s;
         }
         @keyframes slideUp { from { opacity:0; transform:translateY(20px) } to { opacity:1; transform:translateY(0) } }
-        .result.success {
-            background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);
-        }
-        .result.error {
-            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
-        }
+        .result.success { background: rgba(16,185,129,0.1); border: 1px solid var(--secondary); }
+        .result.error { background: rgba(239,68,68,0.1); border: 1px solid var(--error); }
         .result h3 { margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .result.success h3 { color: var(--secondary); }
-        .result.error h3 { color: var(--error); }        
-        .key-info {
-            background: #0f172a; border-radius: 10px; padding: 16px;
-            margin: 16px 0; border-left: 3px solid var(--accent);
-            animation: fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
-        .key-info h4 { font-size: 0.9rem; margin-bottom: 10px; color: var(--accent); }
-        .key-info p { font-size: 0.8rem; margin: 4px 0; font-family: monospace; }
-        .key-info code { 
-            background: rgba(245,158,11,0.1); padding: 2px 6px; 
-            border-radius: 4px; cursor: pointer; transition: var(--speed);
-        }
-        .key-info code:hover { background: rgba(245,158,11,0.2); }
         
-        .download-btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+        .key-info {
+            background: #0f172a; border-radius: 8px; padding: 12px;
+            margin: 12px 0; border-left: 3px solid var(--accent);
+        }
+        .key-info code {
+            background: rgba(245,158,11,0.1); padding: 2px 6px;
+            border-radius: 4px; cursor: pointer;
+        }
+        .download-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; }
         .download-btn {
-            flex: 1; min-width: 150px; padding: 12px; border: none;
-            border-radius: 10px; font-weight: 600; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-            transition: var(--speed); font-size: 0.85rem; position: relative;
-            overflow: hidden;
+            flex: 1; min-width: 120px; padding: 10px; border: none;
+            border-radius: 8px; font-weight: 600; cursor: pointer;
+            font-size: 0.85rem;
         }
-        .download-btn::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1), transparent);
-            opacity: 0; transition: var(--speed);
-        }
-        .download-btn:hover::before { opacity: 1; }
         .download-btn.apk { background: var(--secondary); color: #022c22; }
         .download-btn.aab { background: var(--primary); color: white; }
         .download-btn.key { background: var(--accent); color: #451a03; }
-        .download-btn:hover { transform: translateY(-2px); }
         
-        /* Speed Mode Toggle */
-        .speed-mode {
-            display: flex; align-items: center; gap: 10px; margin-bottom: 15px;
-            padding: 10px 15px; background: rgba(245,158,11,0.1);
-            border: 1px solid rgba(245,158,11,0.3); border-radius: 10px;
+        .alert {
+            padding: 12px; border-radius: 8px; margin-bottom: 15px;
+            font-size: 0.85rem;
         }
-        .speed-mode input { width: auto; margin: 0; }
-        .speed-mode label { margin: 0; font-size: 0.85rem; color: var(--text); }
-        .speed-mode .desc { font-size: 0.7rem; color: var(--text-muted); display: block; }
+        .alert-warning {
+            background: rgba(245,158,11,0.1); border: 1px solid var(--warning);
+            color: #fbbf24;
+        }
+        .alert-info {
+            background: rgba(99,102,241,0.1); border: 1px solid var(--primary);
+        }
+                footer {
+            text-align: center; padding: 20px; color: var(--text-muted);
+            font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 20px;
+        }
         
-        /* Footer */
-        footer {
-            text-align: center; padding: 30px 20px; color: var(--text-muted);
-            font-size: 0.8rem; border-top: 1px solid var(--border); margin-top: 20px;
-        }
-        footer a { color: var(--primary); text-decoration: none; }        footer a:hover { text-decoration: underline; }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .form-grid { grid-template-columns: 1fr; }
-            h1 { font-size: 1.8rem; }
-            .icon-preview { flex-direction: column; align-items: flex-start; }
-            .download-btns { flex-direction: column; }
-            .step-indicator { flex-wrap: wrap; gap: 10px; }
-            .step { flex: none; width: 30%; }
-        }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div id="particles-js"></div>
     
-    <button class="theme-toggle" id="themeSwitch" title="Toggle Theme">
-        <i class="fas fa-moon"></i>
-    </button>
-    
     <div class="container">
         <header>
-            <div class="badge"><i class="fas fa-bolt"></i> ULTRA-FAST BUILD <span class="speed-tag">⚡ 60s</span></div>
-            <h1>🚀 Web to APK <span style="font-size:0.6em;vertical-align:super">FAST</span></h1>
-            <p>Build APK dalam ~60 detik! Optimized polling + smart progress animation.</p>
+            <div class="badge"><i class="fas fa-bolt"></i> SMART BUILD SYSTEM</div>
+            <h1>🚀 Web to APK Builder</h1>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Dengan auto-retry & smart timeout detection</p>
         </header>
 
+        <div class="alert alert-info">
+            <strong>💡 Tips:</strong> Gunakan URL website yang public & HTTPS untuk hasil terbaik. Contoh: https://example.com
+        </div>
+
         <form id="appForm">
-            <!-- Speed Mode -->
-            <div class="speed-mode">
-                <input type="checkbox" id="fastMode" checked>
-                <label for="fastMode">
-                    <strong>⚡ Fast Mode</strong>
-                    <span class="desc">Optimalkan polling interval untuk build lebih cepat (disarankan)</span>
-                </label>
+            <!-- Build Mode -->
+            <div class="card">
+                <h3><i class="fas fa-cog"></i> Pilih Mode Build</h3>
+                <div class="mode-selector">
+                    <button type="button" class="mode-btn active" onclick="setMode('fast')" id="modeFast">
+                        <i class="fas fa-bolt"></i> Fast Mode
+                        <div class="desc">~60 detik • Polling 3s</div>
+                    </button>
+                    <button type="button" class="mode-btn" onclick="setMode('standard')" id="modeStandard">
+                        <i class="fas fa-shield-alt"></i> Standard
+                        <div class="desc">~2-3 menit • Lebih stabil</div>
+                    </button>
+                    <button type="button" class="mode-btn" onclick="setMode('patient')" id="modePatient">
+                        <i class="fas fa-hourglass-half"></i> Patient
+                        <div class="desc">~5 menit • Max reliability</div>
+                    </button>
+                </div>
             </div>
 
-            <!-- Basic Config -->
+            <!-- Config -->
             <div class="card">
-                <h3><i class="fas fa-cog"></i> Konfigurasi Dasar</h3>
+                <h3><i class="fas fa-info-circle"></i> Informasi Aplikasi</h3>
                 <div class="form-grid">
                     <div class="full">
                         <label>🌐 URL Website <span class="req">*</span></label>
                         <input type="url" id="url" placeholder="https://websiteanda.com" required value="https://example.com">
-                    </div>
-                    <div class="full">
-                        <label>📧 Email (opsional)</label>
-                        <input type="email" id="email" placeholder="anda@email.com">
-                    </div>
-                    <div>                        <label>📱 Nama Aplikasi <span class="req">*</span></label>
-                        <input type="text" id="appName" placeholder="My Awesome App" required value="MyApp">
+                    </div>                    <div>
+                        <label>📱 Nama Aplikasi <span class="req">*</span></label>
+                        <input type="text" id="appName" placeholder="MyApp" required value="MyApp">
                     </div>
                     <div>
                         <label>🏷️ Package Name <span class="req">*</span></label>
                         <input type="text" id="packageName" placeholder="com.myapp.app" required value="com.myapp.app">
                     </div>
-                </div>
-            </div>
-
-            <!-- Appearance -->
-            <div class="card">
-                <h3><i class="fas fa-palette"></i> Tampilan</h3>
-                <div class="form-grid">
-                    <div>
-                        <label>🎨 Toolbar Color</label>
-                        <div class="color-group">
-                            <input type="color" id="toolbarColor" value="#6366f1">
-                            <input type="text" id="toolbarColorText" value="#6366f1">
-                        </div>
-                    </div>
-                    <div>
-                        <label>🔤 Title Color</label>
-                        <div class="color-group">
-                            <input type="color" id="toolbarTitleColor" value="#ffffff">
-                            <input type="text" id="toolbarTitleColorText" value="#ffffff">
-                        </div>
-                    </div>
                     <div class="full">
-                        <label class="toggle-row">
-                            <div class="toggle-label">
-                                <span class="title">📊 Show Toolbar</span>
-                                <span class="desc">Tampilkan address bar di WebView</span>
-                            </div>
-                            <label class="toggle">
-                                <input type="checkbox" id="enableShowToolBar" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </label>
+                        <label>📧 Email (opsional)</label>
+                        <input type="email" id="email" placeholder="anda@email.com">
                     </div>
                 </div>
             </div>
 
-            <!-- Icons -->
-            <div class="card">
-                <h3><i class="fas fa-image"></i> Icon & Splash</h3>
-                <div class="icon-preview">
-                    <div class="preview-box">
-                        <div class="preview-placeholder">📱</div>
-                        <img id="appIconPreview" alt="App Icon">                        <span>App Icon</span>
-                        <input type="file" id="appIcon" accept="image/*" style="display:none">
-                        <button type="button" class="btn" style="margin-top:8px;padding:8px;font-size:0.8rem" onclick="document.getElementById('appIcon').click()">📤 Upload</button>
-                    </div>
-                    <div class="preview-box">
-                        <div class="preview-placeholder">✨</div>
-                        <img id="splashIconPreview" alt="Splash">
-                        <span>Splash Screen</span>
-                        <input type="file" id="splashIcon" accept="image/*" style="display:none">
-                        <button type="button" class="btn" style="margin-top:8px;padding:8px;font-size:0.8rem" onclick="document.getElementById('splashIcon').click()">📤 Upload</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Build Button -->
             <button type="submit" class="btn btn-primary" id="buildBtn">
-                <i class="fas fa-rocket"></i> 🚀 BUILD APK (FAST MODE)
+                <i class="fas fa-rocket"></i> 🚀 START BUILD
             </button>
         </form>
 
-        <!-- Fast Progress -->
+        <!-- Progress -->
         <div class="progress-container" id="progressContainer">
             <div class="progress-bar">
                 <div class="progress-fill" id="progress"></div>
             </div>
-            <div class="progress-text fast" id="progressText">🔄 Initializing...</div>
+            <div class="progress-text" id="progressText">Initializing...</div>
             
-            <div class="step-indicator">
-                <div class="step active" id="step1"><div class="step-dot">1</div><span>Create</span></div>
-                <div class="step" id="step2"><div class="step-dot">2</div><span>Upload</span></div>
-                <div class="step" id="step3"><div class="step-dot">3</div><span>Build</span></div>
-                <div class="step" id="step4"><div class="step-dot">4</div><span>Compile</span></div>
-                <div class="step" id="step5"><div class="step-dot">5</div><span>Done!</span></div>
+            <div class="status-box" id="statusBox">
+                <div class="status-item" id="statusCreate">
+                    <span>📋 Create Project</span>
+                    <span class="waiting">⏳ Waiting...</span>
+                </div>
+                <div class="status-item" id="statusUpload">
+                    <span>📤 Upload Assets</span>
+                    <span class="waiting">⏳ Waiting...</span>
+                </div>
+                <div class="status-item" id="statusBuild">
+                    <span>🔨 Build APK</span>
+                    <span class="waiting">⏳ Waiting...</span>
+                </div>
+                <div class="status-item" id="statusCompile">
+                    <span>⚙️ Compile</span>
+                    <span class="waiting">⏳ Waiting...</span>
+                </div>
             </div>
         </div>
 
         <!-- Result -->
         <div class="result" id="result"></div>
-
         <footer>
-            <p>⚡ Powered by <a href="https://appmaker.xyz" target="_blank">AppMaker.xyz</a> | 
-            Fast Mode: Polling 2s • Max 20 attempts • ~60s avg build time</p>
+            <p>Powered by AppMaker.xyz API | Smart retry system enabled</p>
         </footer>
     </div>
 
     <script>
-        // ========== API CONFIG ==========
+        // Config modes
+        const MODES = {
+            fast: { interval: 3000, maxAttempts: 20, timeout: 60000 },
+            standard: { interval: 5000, maxAttempts: 30, timeout: 150000 },
+            patient: { interval: 8000, maxAttempts: 40, timeout: 300000 }
+        };
+        let currentMode = 'fast';
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('mode' + mode.charAt(0).toUpperCase() + mode.slice(1)).classList.add('active');
+        }
+
         const appmakerAPI = {
             baseURL: 'https://standalone-app-api.appmaker.xyz/webapp',
-            defaultHeaders: {                'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36',
-                'Accept': 'application/json, text/plain, */*',
-                'sec-ch-ua-platform': '"Android"', 'sec-ch-ua-mobile': '?1',
-                'origin': 'https://create.appmaker.xyz', 'referer': 'https://create.appmaker.xyz/',
-                'accept-language': 'id,en-US;q=0.9'
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K)',
+                'Accept': 'application/json',
+                'origin': 'https://create.appmaker.xyz',
+                'referer': 'https://create.appmaker.xyz/'
             },
             async createApp(url, email) {
                 const res = await axios.post(`${this.baseURL}/build`, 
                     JSON.stringify({ url, email: email || 'user@example.com' }),
-                    { headers: { ...this.defaultHeaders, 'Content-Type': 'application/json' }});
+                    { headers: { ...this.headers, 'Content-Type': 'application/json' }, timeout: 30000 });
                 return res.data;
             },
             async uploadFile(file, appId) {
                 const fd = new FormData();
                 fd.append('file', file); fd.append('id', appId);
-                const res = await axios.post(`${this.baseURL}/build/file-upload`, fd, { headers: this.defaultHeaders });
+                const res = await axios.post(`${this.baseURL}/build/file-upload`, fd, 
+                    { headers: this.headers, timeout: 60000 });
                 return res.data;
             },
             async buildApp(config) {
-                const res = await axios.post(`${this.baseURL}/build/build`, JSON.stringify(config),
-                    { headers: { ...this.defaultHeaders, 'Content-Type': 'application/json' }});
-                return res.data;
+                await axios.post(`${this.baseURL}/build/build`, JSON.stringify(config),
+                    { headers: { ...this.headers, 'Content-Type': 'application/json' }, timeout: 30000 });
             },
             async checkStatus(appId) {
-                const res = await axios.get(`${this.baseURL}/build/status?appId=${appId}`, { headers: this.defaultHeaders });
+                const res = await axios.get(`${this.baseURL}/build/status?appId=${appId}`, 
+                    { headers: this.headers, timeout: 10000 });
                 return res.data;
-            },
-            async getDownloadUrl(appId) {
-                const res = await axios.get(`${this.baseURL}/complete/download?appId=${appId}`, { headers: this.defaultHeaders });
+            },            async getDownloadUrl(appId) {
+                const res = await axios.get(`${this.baseURL}/complete/download?appId=${appId}`, 
+                    { headers: this.headers, timeout: 30000 });
                 return res.data;
             }
         };
 
-        // ========== UI HELPERS ==========
-        function syncColor(colorInput, textInput) {
-            colorInput.oninput = () => textInput.value = colorInput.value;
-            textInput.oninput = () => { if(/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) colorInput.value = textInput.value; };
-        }
-
-        function previewIcon(input, img, placeholder) {
-            input.onchange = function() {
-                if(this.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = e => { img.src = e.target.result; img.style.display='block'; placeholder.style.display='none'; };
-                    reader.readAsDataURL(this.files[0]);
-                }
-            };
-        }
-
-        function updateProgress(percent, text, step) {            document.getElementById('progressContainer').style.display = 'block';
-            document.getElementById('progress').style.width = percent + '%';
-            document.getElementById('progressText').textContent = text;
-            
-            // Update steps
-            for(let i=1; i<=5; i++) {
-                const el = document.getElementById('step'+i);
-                if(i < step) { el.className = 'step done'; }
-                else if(i === step) { el.className = 'step active'; }
-                else { el.className = 'step'; }
+        function updateStatus(id, status, icon) {
+            const el = document.getElementById(id);
+            if(el) {
+                el.className = 'status-item ' + status;
+                el.querySelector('span:last-child').innerHTML = icon;
             }
         }
 
-        function showResult(html, success) {
-            const r = document.getElementById('result');
-            r.className = `result ${success?'success':'error'}`;
-            r.innerHTML = html;
-            r.style.display = 'block';
-            r.scrollIntoView({behavior:'smooth'});
+        function updateProgress(percent, text) {
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('progress').style.width = percent + '%';
+            document.getElementById('progressText').textContent = text;
+        }
+
+        async function buildApp(e) {
+            e.preventDefault();
+            const btn = document.getElementById('buildBtn');
+            const config = MODES[currentMode];
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Building...';
+            document.getElementById('result').style.display = 'none';
+            
+            const formData = {
+                url: document.getElementById('url').value,
+                email: document.getElementById('email').value || 'user@example.com',
+                appName: document.getElementById('appName').value,
+                packageName: document.getElementById('packageName').value
+            };
+
+            try {
+                // Validate URL
+                updateProgress(5, 'Validating URL...');
+                try {
+                    await axios.head(formData.url, { timeout: 10000 });
+                } catch(err) {
+                    throw new Error(`URL tidak dapat diakses: ${formData.url}\nPastikan website public & HTTPS`);
+                }
+
+                // Step 1: Create
+                updateProgress(10, 'Creating project...');
+                updateStatus('statusCreate', 'waiting', '⏳ Processing...');
+                const createRes = await appmakerAPI.createApp(formData.url, formData.email);                const appId = createRes.body?.appId;
+                if(!appId) throw new Error('Failed to get appId from server');
+                updateStatus('statusCreate', 'success', '✅ Done');
+
+                // Step 2: Build
+                updateProgress(30, 'Starting build process...');
+                updateStatus('statusUpload', 'success', '✅ Skipped (default assets)');
+                await appmakerAPI.buildApp({
+                    appId, appIcon: 'https://via.placeholder.com/512',
+                    appName: formData.appName, isPaymentInProgress: false,
+                    enableShowToolBar: true, toolbarColor: '#6366f1',
+                    toolbarTitleColor: '#ffffff', splashIcon: 'https://via.placeholder.com/512',
+                    packageName: formData.packageName
+                });
+                updateStatus('statusBuild', 'success', '✅ Started');
+
+                // Step 3: Poll with smart retry
+                updateProgress(50, 'Compiling APK... This may take a few minutes');
+                updateStatus('statusCompile', 'waiting', '⏳ Compiling...');
+                
+                let attempts = 0;
+                let lastStatus = '';
+                let noChangeCount = 0;
+                
+                while(attempts < config.maxAttempts) {
+                    await new Promise(r => setTimeout(r, config.interval));
+                    attempts++;
+                    
+                    try {
+                        const status = await appmakerAPI.checkStatus(appId);
+                        const currentStatus = status.body?.status || 'unknown';
+                        
+                        // Detect if stuck
+                        if(currentStatus === lastStatus) {
+                            noChangeCount++;
+                        } else {
+                            noChangeCount = 0;
+                            lastStatus = currentStatus;
+                        }
+                        
+                        const progress = Math.min(95, 50 + (attempts * 1.5));
+                        updateProgress(progress, `Building... (${attempts}/${config.maxAttempts}) - Status: ${currentStatus}`);
+                        
+                        if(currentStatus === 'success') {
+                            updateStatus('statusCompile', 'success', '✅ Complete');
+                            break;
+                        }
+                        if(currentStatus === 'failed') {
+                            throw new Error('Server reported build failed');
+                        }                        if(noChangeCount >= 5) {
+                            throw new Error(`Build stuck at "${currentStatus}" for ${noChangeCount * config.interval/1000}s. Try Patient mode.`);
+                        }
+                    } catch(err) {
+                        if(err.message.includes('timeout') || err.message.includes('network')) {
+                            updateProgress(50 + (attempts * 1.5), `Server busy... retrying (${attempts}/${config.maxAttempts})`);
+                            continue;
+                        }
+                        throw err;
+                    }
+                }
+
+                if(attempts >= config.maxAttempts) {
+                    throw new Error(`Build timeout after ${attempts} attempts. Try Standard or Patient mode.`);
+                }
+
+                // Step 4: Download
+                updateProgress(100, 'Preparing download...');
+                const dl = await appmakerAPI.getDownloadUrl(appId);
+                const body = dl.body;
+
+                setTimeout(() => {
+                    document.getElementById('result').className = 'result success';
+                    document.getElementById('result').innerHTML = `
+                        <h3 style="color: var(--secondary)"><i class="fas fa-check-circle"></i> ✅ Build Success!</h3>
+                        <p><strong>${body.appName}</strong> is ready!</p>
+                        <div class="key-info">
+                            <h4><i class="fas fa-key"></i> SAVE THIS INFO!</h4>
+                            <p><strong>Store Pass:</strong> <code onclick="navigator.clipboard.writeText('${body.storePass}')">${body.storePass}</code></p>
+                            <p><strong>Key Pass:</strong> <code onclick="navigator.clipboard.writeText('${body.keyPass}')">${body.keyPass}</code></p>
+                        </div>
+                        <div class="download-btns">
+                            <button class="download-btn apk" onclick="downloadFile('${body.buildFile}','${body.appName}.apk')">📥 APK</button>
+                            <button class="download-btn aab" onclick="downloadFile('${body.aabFile}','${body.appName}.aab')">📦 AAB</button>
+                            <button class="download-btn key" onclick="downloadFile('${body.keyFile}','${body.appName}.jks')">🔑 Key</button>
+                        </div>
+                    `;
+                    document.getElementById('result').style.display = 'block';
+                    document.getElementById('result').scrollIntoView({behavior:'smooth'});
+                }, 300);
+
+            } catch(err) {
+                console.error(err);
+                document.getElementById('result').className = 'result error';
+                document.getElementById('result').innerHTML = `
+                    <h3 style="color: var(--error)"><i class="fas fa-times-circle"></i> Build Failed</h3>
+                    <p><strong>${err.message}</strong></p>
+                    <div style="margin-top:12px;padding:12px;background:rgba(239,68,68,0.1);border-radius:8px;font-size:0.85rem">
+                        <strong>💡 Solutions:</strong><br>
+                        • Try <strong>Standard</strong> or <strong>Patient</strong> mode above<br>                        • Check your URL is public & uses HTTPS<br>
+                        • Wait 2 minutes and try again<br>
+                        • Try a simpler website first
+                    </div>
+                    <button class="btn" onclick="location.reload()" style="margin-top:12px;background:var(--card);border:1px solid var(--border)">
+                        <i class="fas fa-redo"></i> Retry
+                    </button>
+                `;
+                document.getElementById('result').style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-rocket"></i> 🚀 START BUILD';
+                setTimeout(() => { document.getElementById('progressContainer').style.display = 'none'; }, 3000);
+            }
         }
 
         function downloadFile(url, filename) {
@@ -515,188 +461,26 @@
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
 
-        // ========== FAST BUILD FLOW ==========
-        async function buildApp(e) {
-            e.preventDefault();
-            const btn = document.getElementById('buildBtn');
-            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Building...';
-            document.getElementById('result').style.display = 'none';
-            
-            const fastMode = document.getElementById('fastMode').checked;
-            // FAST MODE: 2s polling, max 20 attempts (~40s max wait)
-            // NORMAL: 5s polling, max 30 attempts (~150s max wait)
-            const POLL_INTERVAL = fastMode ? 2000 : 5000;
-            const MAX_ATTEMPTS = fastMode ? 20 : 30;
-            
-            const cfg = {
-                url: document.getElementById('url').value,
-                email: document.getElementById('email').value || 'user@example.com',
-                appName: document.getElementById('appName').value,
-                packageName: document.getElementById('packageName').value,
-                toolbarColor: document.getElementById('toolbarColor').value,
-                toolbarTitleColor: document.getElementById('toolbarTitleColor').value,
-                enableShowToolBar: document.getElementById('enableShowToolBar').checked,
-                appIcon: document.getElementById('appIcon').files[0],
-                splashIcon: document.getElementById('splashIcon').files[0]            };
-
-            try {
-                // Step 1: Create (5%)
-                updateProgress(5, '⚡ Creating project...', 1);
-                const createRes = await appmakerAPI.createApp(cfg.url, cfg.email);
-                const appId = createRes.body?.appId;
-                if(!appId) throw new Error('Failed to get appId');
-
-                // Step 2: Upload Icon (25%)
-                updateProgress(25, '🖼️ Uploading icon...', 2);
-                let iconUrl = 'https://via.placeholder.com/512/6366f1/fff?text=APP';
-                if(cfg.appIcon) {
-                    const up = await appmakerAPI.uploadFile(cfg.appIcon, appId);
-                    iconUrl = up.cloudStoragePublicUrl;
-                }
-
-                // Step 3: Upload Splash (45%)
-                updateProgress(45, '✨ Uploading splash...', 2);
-                let splashUrl = 'https://via.placeholder.com/512/6366f1/fff?text=SPLASH';
-                if(cfg.splashIcon) {
-                    const up = await appmakerAPI.uploadFile(cfg.splashIcon, appId);
-                    splashUrl = up.cloudStoragePublicUrl;
-                }
-
-                // Step 4: Build (65%)
-                updateProgress(65, '🔨 Building app...', 3);
-                await appmakerAPI.buildApp({
-                    appId, appIcon: iconUrl, appName: cfg.appName,
-                    isPaymentInProgress: false, enableShowToolBar: cfg.enableShowToolBar,
-                    toolbarColor: cfg.toolbarColor, toolbarTitleColor: cfg.toolbarTitleColor,
-                    splashIcon: splashUrl, packageName: cfg.packageName
-                });
-
-                // Step 5: Poll Status (80-95%) - FAST MODE
-                updateProgress(80, '⚡ Compiling APK...', 4);
-                let status, attempts = 0;
-                
-                do {
-                    await new Promise(r => setTimeout(r, POLL_INTERVAL));
-                    status = await appmakerAPI.checkStatus(appId);
-                    attempts++;
-                    
-                    // Smooth progress animation
-                    const pct = Math.min(95, 80 + (attempts * 0.75));
-                    updateProgress(pct, `⚡ Building... ${attempts}/${MAX_ATTEMPTS} • ${status.body?.status || 'processing'}`, 4);
-                    
-                    if(status.body?.status === 'success') break;
-                    if(status.body?.status === 'failed') throw new Error('Build failed on server');
-                } while(attempts < MAX_ATTEMPTS);
-                if(attempts >= MAX_ATTEMPTS) throw new Error('⏰ Build timeout. Try again or disable Fast Mode.');
-
-                // Step 6: Download (100%)
-                updateProgress(100, '✅ Ready! Preparing download...', 5);
-                const dl = await appmakerAPI.getDownloadUrl(appId);
-                const body = dl.body;
-
-                // Show success with animation delay for UX
-                setTimeout(() => {
-                    showResult(`
-                        <h3><i class="fas fa-check-circle"></i> 🎉 Build Complete!</h3>
-                        <p><strong>"${body.appName}"</strong> ready to install!</p>
-                        
-                        <div class="key-info">
-                            <h4><i class="fas fa-key"></i> ⚠️ SAVE KEYSTORE INFO!</h4>
-                            <p><strong>Store Pass:</strong> <code onclick="navigator.clipboard.writeText('${body.storePass}')">${body.storePass}</code></p>
-                            <p><strong>Key Pass:</strong> <code onclick="navigator.clipboard.writeText('${body.keyPass}')">${body.keyPass}</code></p>
-                            <p><strong>SHA:</strong> <code>${body.keySha}</code></p>
-                        </div>
-                        
-                        <div class="download-btns">
-                            <button class="download-btn apk" onclick="downloadFile('${body.buildFile}','${body.appName}.apk')">
-                                <i class="fas fa-download"></i> APK
-                            </button>
-                            <button class="download-btn aab" onclick="downloadFile('${body.aabFile}','${body.appName}.aab')">
-                                <i class="fas fa-box"></i> AAB
-                            </button>
-                            <button class="download-btn key" onclick="downloadFile('${body.keyFile}','${body.appName}.jks')">
-                                <i class="fas fa-key"></i> Keystore
-                            </button>
-                        </div>
-                        
-                        <p style="margin-top:12px;font-size:0.8rem;color:var(--text-muted)">
-                            📱 Install: Transfer APK → File Manager → Tap → Allow "Unknown Sources" → Install
-                        </p>
-                    `, true);
-                }, 300);
-
-            } catch(err) {
-                console.error('Build error:', err);
-                showResult(`
-                    <h3><i class="fas fa-exclamation-triangle"></i> ❌ Build Failed</h3>
-                    <p><strong>${err.message || 'Unknown error'}</strong></p>
-                    <p style="margin-top:10px;font-size:0.9rem">
-                        Tips:<br>• Check URL is public & HTTPS<br>• Try disabling Fast Mode<br>• Wait 1 min & retry
-                    </p>
-                    <button class="btn" onclick="location.reload()" style="margin-top:15px;background:var(--card);border:1px solid var(--border)">
-                        <i class="fas fa-redo"></i> Retry
-                    </button>                `, false);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-rocket"></i> 🚀 BUILD APK (FAST MODE)';
-                setTimeout(() => { document.getElementById('progressContainer').style.display = 'none'; }, 2000);
+        document.getElementById('appForm').onsubmit = buildApp;
+        
+        // Auto-generate package name
+        document.getElementById('appName').onblur = function() {
+            const pkg = document.getElementById('packageName');
+            if(!pkg.value || pkg.value === 'com.myapp.app') {
+                const name = this.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+                pkg.value = `com.${name || 'myapp'}.app`;
             }
+        };
+
+        // Init particles
+        if(typeof particlesJS !== 'undefined') {
+            particlesJS('particles-js', {
+                particles: { number:{value:50}, color:{value:'#ffffff'}, opacity:{value:0.3},
+                    size:{value:2}, line_linked:{enable:true,distance:120,color:'#ffffff',opacity:0.2,width:1},
+                    move:{enable:true,speed:1.5} },
+                interactivity:{ events:{onhover:{enable:false},onclick:{enable:false},resize:true} }
+            });
         }
-
-        // ========== INIT ==========
-        document.addEventListener('DOMContentLoaded', () => {
-            // Particles
-            if(typeof particlesJS !== 'undefined') {
-                particlesJS('particles-js', {
-                    particles: {
-                        number: { value: window.innerWidth<768?30:60, density:{enable:true,value_area:700} },
-                        color: { value: '#ffffff' }, shape: { type: 'circle' },
-                        opacity: { value: 0.3, random: true }, size: { value: 2, random: true },
-                        line_linked: { enable: true, distance: 120, color: '#ffffff', opacity: 0.2, width: 1 },
-                        move: { enable: true, speed: 2, direction: 'none', out_mode: 'out' }
-                    },
-                    interactivity: {
-                        detect_on: 'canvas',
-                        events: { onhover:{enable:true,mode:'grab'}, onclick:{enable:true,mode:'push'}, resize: true },
-                        modes: { grab: { distance: 150, line_linked:{opacity:0.5} }, push: { particles_nb: 2 } }
-                    },
-                    retina_detect: true
-                });
-            }
-
-            // Theme
-            const themeBtn = document.getElementById('themeSwitch');
-            const themeIcon = themeBtn.querySelector('i');
-            if(localStorage.getItem('theme')==='dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme:dark)').matches)) {
-                document.body.classList.add('dark-mode');
-                themeIcon.classList.replace('fa-moon','fa-sun');
-            }
-            themeBtn.onclick = () => {
-                document.body.classList.toggle('dark-mode');
-                const dark = document.body.classList.contains('dark-mode');
-                localStorage.setItem('theme', dark?'dark':'light');
-                themeIcon.classList.replace(dark?'fa-moon':'fa-sun', dark?'fa-sun':'fa-moon');
-            };
-
-            // Color sync
-            syncColor(document.getElementById('toolbarColor'), document.getElementById('toolbarColorText'));
-            syncColor(document.getElementById('toolbarTitleColor'), document.getElementById('toolbarTitleColorText'));
-            
-            // Icon preview
-            previewIcon(document.getElementById('appIcon'), document.getElementById('appIconPreview'), document.querySelector('.preview-box:nth-child(1) .preview-placeholder'));
-            previewIcon(document.getElementById('splashIcon'), document.getElementById('splashIconPreview'), document.querySelector('.preview-box:nth-child(2) .preview-placeholder'));
-            // Form
-            document.getElementById('appForm').onsubmit = buildApp;
-            
-            // Auto package name
-            document.getElementById('appName').onblur = function() {
-                const pkg = document.getElementById('packageName');
-                if(!pkg.value || pkg.value==='com.myapp.app') {
-                    const name = this.value.toLowerCase().replace(/[^a-z0-9]/g,'');
-                    pkg.value = `com.${name||'myapp'}.app`;
-                }
-            };
-        });
     </script>
 </body>
 </html>
